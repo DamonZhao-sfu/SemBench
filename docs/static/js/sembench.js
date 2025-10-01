@@ -24,7 +24,7 @@ let scenarioData = {
             '2.5flash': 'Gemini 2.5 Flash',
             '5mini': 'GPT-4o Mini (5mini)'
         },
-        'pathPrefix': 'across_systems_' // animals uses across_systems_ with 's'
+        'pathPrefix': 'across_system_' // animals uses across_system_ without 's'
     },
     'movie': {
         'models': ['2.0flash', '2.5flash', '4omini', '5mini'],
@@ -223,16 +223,37 @@ function onPerformanceVersionChange() {
 function onScenarioChange() {
     currentScenario = $('#scenarioSelect').val();
     console.log('Scenario changed to:', currentScenario);
-    
+
     if (currentScenario) {
         // Enable model select and populate it
         populateModelSelect();
         $('#modelSelect').prop('disabled', false);
-        
-        // Hide table and other sections until model is selected
-        $('#benchmarkTable').hide();
-        $('#queryDetails').hide();
-        $('#overallPerformance').hide();
+
+        // Auto-select default model based on scenario
+        const availableModels = scenarioData[currentScenario].models;
+        let defaultModel = null;
+
+        // For MMQA, use gemini-2.5-flash; for others, use 2.5flash
+        if (currentScenario === 'mmqa' && availableModels.includes('gemini-2.5-flash')) {
+            defaultModel = 'gemini-2.5-flash';
+        } else if (availableModels.includes('2.5flash')) {
+            defaultModel = '2.5flash';
+        }
+
+        if (defaultModel) {
+            currentModel = defaultModel;
+            $('#modelSelect').val(currentModel);
+
+            // Load data immediately
+            if (currentVersion) {
+                loadBenchmarkData();
+            }
+        } else {
+            // No default model available, hide table until model is selected
+            $('#benchmarkTable').hide();
+            $('#queryDetails').hide();
+            $('#overallPerformance').hide();
+        }
     } else {
         // Reset everything
         $('#modelSelect').prop('disabled', true).html('<option value="">Select Model</option>');
