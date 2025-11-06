@@ -54,3 +54,5 @@ run_all.sh
 files/mmqa/data/images/*
 files/mmqa/data_sf=200/*
 files/mmqa/data/sf_200/*
+
+files/medical/__MACOSX
