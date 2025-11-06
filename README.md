@@ -128,6 +128,13 @@ conda install conda-build
 conda develop <path to the SemBench directory, e.g., ~/Desktop/MMBench-System>
 ```
 
+### Dataset Download and Database Generation
+Note
+
+- SemBench automatically downloads the required datasets from Google Drive and constructs multi-modal databases according to the specified scale factor.
+
+- The databases included in the repository are provided for demonstration purposes only. Before running your own experiments, please delete the existing `files/{scenario}/data` directory and execute the scripts to regenerate the data.
+
 ### Running Benchmarks
 ```bash
 # Run specific system on specific use case and queries
@@ -156,9 +163,9 @@ python3 src/scripts/analysis.py
 
 ### Output Structure
 Results are organized as:
-- **Query Results**: `files/{use_case}/raw_results/{system}/Q{n}.csv`
-- **Performance Metrics**: `files/{use_case}/metrics/{system}.json`  
-- **Visualizations**: `figures/{use_case}/`
+- **Query Results**: `files/{scenario}/raw_results/{system}/Q{n}.csv`
+- **Performance Metrics**: `files/{scenario}/metrics/{system}.json`  
+- **Visualizations**: `figures/{scenario}/`
 
 SemBench provides bar charts for every performance metric (money cost, latency, and result quality), pareto figure for cost-quality trade-off, and a comprehensive table in latex to compare all metrics.
 
