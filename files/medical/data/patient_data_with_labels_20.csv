@@ -1,0 +1,21 @@
+age,gender,smoking_history,did_family_have_cancer,audio_diagnosis,patient_id,x_ray_diagnosis,text_diagnosis,skin_cancer_diagnosis,is_sick
+82,Male,Never,0,none,5573,07_mediastinal_changes ,none,none,True
+39,Male,Never,1,none,441,none,none,malignant,True
+36,Male,Former,0,none,6912,00_normal,none,benign,False
+49,Female,Current,0,none,1804,06_encapsulated_lesions,none,none,True
+52,Male,Former,0,none,8105,06_encapsulated_lesions,none,none,True
+83,Female,Former,1,none,1608,none,none,none,False
+79,Female,Former,0,none,8869,00_normal,dimorphic hemorrhoids,none,True
+78,Male,Never,0,none,3917,06_encapsulated_lesions,none,none,True
+31,Male,Never,1,none,5385,none,malaria,none,True
+59,Male,Current,1,none,7997,none,none,none,False
+64,Female,Never,0,none,3431,02_higher_density,none,none,True
+54,Male,Former,0,none,1369,none,none,none,False
+58,Male,Never,0,none,9729,00_normal,none,none,False
+46,Male,Current,0,none,1469,08_chest_changes,none,none,True
+72,Male,Never,0,none,6096,none,none,none,False
+51,Female,Current,0,none,9632,none,none,none,False
+60,Female,Never,0,none,7232,none,none,none,False
+43,Male,Former,0,none,3028,none,none,none,False
+40,Male,Current,0,none,7697,none,none,malignant,True
+68,Male,Former,0,none,4520,none,none,benign,False

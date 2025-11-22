@@ -1,0 +1,26 @@
+age,gender,smoking_history,did_family_have_cancer,audio_diagnosis,patient_id,x_ray_diagnosis,text_diagnosis,skin_cancer_diagnosis,is_sick
+41,Male,Never,0,none,4007,00_normal,none,none,False
+37,Male,Never,0,none,5288,00_normal,none,none,False
+56,Male,Former,0,none,2310,00_normal,none,none,False
+57,Male,Former,0,none,8752,00_normal,none,none,False
+65,Female,Former,0,none,6089,none,none,none,False
+51,Male,Never,0,none,8866,00_normal,none,none,False
+89,Male,Former,0,none,7618,none,none,benign,False
+75,Male,Former,0,none,1459,05_degenerative_infectious_diseases,none,benign,True
+40,Female,Current,0,none,8701,04_obstructive_pulmonary_diseases,none,none,True
+34,Male,Current,0,none,942,none,none,none,False
+68,Female,Current,0,none,1127,03_lower_density,none,none,True
+52,Male,Former,0,none,8474,04_obstructive_pulmonary_diseases,none,none,True
+78,Female,Former,1,none,2663,01_inflammatory_processes,none,none,True
+65,Female,Never,0,none,264,none,none,benign,False
+56,Male,Never,1,none,5893,02_higher_density,none,none,True
+49,Male,Former,0,none,9999,08_chest_changes,none,none,True
+53,Male,Former,0,none,8921,none,none,benign,False
+85,Male,Former,0,none,5738,02_higher_density,none,none,True
+84,Male,Current,0,none,9925,none,dimorphic hemorrhoids,none,True
+32,Female,Former,0,none,274,02_higher_density,none,none,True
+43,Female,Former,0,none,7575,08_chest_changes,none,none,True
+31,Male,Never,0,none,9479,none,none,none,False
+39,Male,Current,1,none,4090,none,none,benign,False
+57,Male,Never,0,none,9928,none,none,none,False
+51,Female,Never,1,none,10389,none,none,none,False

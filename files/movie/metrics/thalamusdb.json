@@ -2,14 +2,27 @@
   "Q1": {
     "query_id": "1",
     "status": "success",
-    "execution_time": 2.0111870765686035,
-    "token_usage": 1245,
-    "money_cost": 0.000418,
-    "row_count": 10,
+    "execution_time": 11.305419206619263,
+    "token_usage": 2897,
+    "money_cost": 0.000957,
+    "row_count": 14,
     "model_name": "gemini-2.5-flash",
     "concurrent_llm_worker": 20,
-    "precision": 1.0,
+    "precision": 0.9285714285714286,
     "recall": 1.0,
-    "f1_score": 1.0
+    "f1_score": 0.962962962962963
+  },
+  "Q7": {
+    "query_id": "7",
+    "status": "success",
+    "execution_time": 102.47780013084412,
+    "token_usage": 99466,
+    "money_cost": 0.043229,
+    "row_count": 1004,
+    "model_name": "gemini-2.5-flash",
+    "concurrent_llm_worker": 20,
+    "precision": 0.7479191438763377,
+    "recall": 0.348669623059867,
+    "f1_score": 0.4756143667296787
   }
 }

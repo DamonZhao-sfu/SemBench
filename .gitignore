@@ -56,3 +56,6 @@ files/mmqa/data_sf=200/*
 files/mmqa/data/sf_200/*
 
 files/medical/__MACOSX
+
+scripts/scale_factor_experiment.sh
+src/plot_scalability.py

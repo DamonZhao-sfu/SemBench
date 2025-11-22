@@ -48,6 +48,7 @@ class BigQueryRunner(GenericBigQueryRunner):
     def _bigquery_setup(self):
         setup = BigQueryMovieSetup()
         setup.setup_data(
+            scale_factor=self.scale_factor,
             data_dir=Path(__file__).resolve().parents[5]
             / "files"
             / "movie"

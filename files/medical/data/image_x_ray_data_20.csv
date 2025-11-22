@@ -1,0 +1,10 @@
+image_path,patient_id,xray_id
+files/medical/data/raw_data/all_x_rays/2598_07_mediastinal_changes _07 (273).jpg,5573,2598
+files/medical/data/raw_data/all_x_rays/4855_00_normal_00 (354).jpeg,8869,4855
+files/medical/data/raw_data/all_x_rays/6228_02_higher_density_02 (19).jpg,3431,6228
+files/medical/data/raw_data/all_x_rays/6000_00_normal_00 (306).jpeg,9729,6000
+files/medical/data/raw_data/all_x_rays/4248_08_chest_changes_08 (153).jpeg,1469,4248
+files/medical/data/raw_data/all_x_rays/5677_00_normal_00 (50).jpeg,6912,5677
+files/medical/data/raw_data/all_x_rays/108_06_encapsulated_lesions_06 (536).jpeg,8105,108
+files/medical/data/raw_data/all_x_rays/47_06_encapsulated_lesions_06 (410).jpeg,3917,47
+files/medical/data/raw_data/all_x_rays/199_06_encapsulated_lesions_06 (238).jpeg,1804,199

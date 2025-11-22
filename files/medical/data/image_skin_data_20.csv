@@ -1,0 +1,5 @@
+image_path,patient_id,skin_image_id
+files/medical/data/raw_data/all_skin_images/422_test_benign_1092.jpg,6912,422
+files/medical/data/raw_data/all_skin_images/540_test_benign_245.jpg,4520,540
+files/medical/data/raw_data/all_skin_images/1155_train_malignant_1492.jpg,441,1155
+files/medical/data/raw_data/all_skin_images/1488_train_malignant_119.jpg,7697,1488

@@ -73,7 +73,7 @@ class FlockMTLMedicalSetup:
         )
 
         self._upload_file_to_db(
-            csv_path=os.path.join(data_dir, "data/image_skin_data.csv")  if scale_factor == 11112 else f"data/image_skin_data_{scale_factor}.csv", 
+            csv_path=os.path.join(data_dir, "data/image_skin_data.csv" if scale_factor == 11112 else f"data/image_skin_data_{scale_factor}.csv"),
             table_name="skin_images"
         )
 

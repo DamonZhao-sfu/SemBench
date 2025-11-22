@@ -1,0 +1,6 @@
+image_path,patient_id,skin_image_id
+files/medical/data/raw_data/all_skin_images/2622_train_benign_1503.jpg,7618,2622
+files/medical/data/raw_data/all_skin_images/2570_train_benign_111.jpg,4090,2570
+files/medical/data/raw_data/all_skin_images/2162_train_benign_1752.jpg,1459,2162
+files/medical/data/raw_data/all_skin_images/2056_train_benign_164.jpg,8921,2056
+files/medical/data/raw_data/all_skin_images/2633_train_benign_900.jpg,264,2633

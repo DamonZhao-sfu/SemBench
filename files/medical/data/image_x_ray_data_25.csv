@@ -1,0 +1,16 @@
+image_path,patient_id,xray_id
+files/medical/data/raw_data/all_x_rays/6142_02_higher_density_02 (207).jpg,5893,6142
+files/medical/data/raw_data/all_x_rays/1063_05_degenerative_infectious_diseases_05 (199).jpg,1459,1063
+files/medical/data/raw_data/all_x_rays/1780_04_obstructive_pulmonary_diseases_04 (310).jpeg,8701,1780
+files/medical/data/raw_data/all_x_rays/4852_00_normal_00 (79).jpeg,8752,4852
+files/medical/data/raw_data/all_x_rays/6207_02_higher_density_02 (135).jpeg,274,6207
+files/medical/data/raw_data/all_x_rays/5691_00_normal_00 (90).jpeg,8866,5691
+files/medical/data/raw_data/all_x_rays/4514_08_chest_changes_08 (299).jpeg,7575,4514
+files/medical/data/raw_data/all_x_rays/5533_00_normal_00 (223).jpeg,2310,5533
+files/medical/data/raw_data/all_x_rays/2189_03_lower_density_03 (49).jpeg,1127,2189
+files/medical/data/raw_data/all_x_rays/3349_01_inflammatory_processes_01 (804).jpeg,2663,3349
+files/medical/data/raw_data/all_x_rays/6299_02_higher_density_02 (55).jpeg,5738,6299
+files/medical/data/raw_data/all_x_rays/4417_08_chest_changes_08 (94).jpeg,9999,4417
+files/medical/data/raw_data/all_x_rays/5243_00_normal_00 (1122).jpeg,5288,5243
+files/medical/data/raw_data/all_x_rays/1511_04_obstructive_pulmonary_diseases_04 (186).jpeg,8474,1511
+files/medical/data/raw_data/all_x_rays/5029_00_normal_00 (930).jpeg,4007,5029
