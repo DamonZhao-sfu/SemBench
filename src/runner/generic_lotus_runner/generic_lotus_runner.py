@@ -13,8 +13,12 @@ from typing import List
 import lotus
 from lotus.models import LM
 import re
+from PIL import ImageFile
 
 from runner.generic_runner import GenericRunner, GenericQueryMetric
+
+# Allow loading of truncated images (some source images may be incomplete)
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Pricing rules: (text_input, audio_input, output) per 1M tokens
 PRICING = {
