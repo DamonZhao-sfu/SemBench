@@ -119,14 +119,14 @@
   "Q10": {
     "query_id": "10",
     "status": "success",
-    "execution_time": 367.30251383781433,
-    "token_usage": 50953500,
-    "money_cost": 16.3138482,
+    "execution_time": 790.489217042923,
+    "token_usage": 80535131,
+    "money_cost": 26.275784299999998,
     "row_count": 157269,
     "model_name": "gemini-2.5-flash",
     "concurrent_llm_worker": 20,
-    "precision": 0.18955537291822908,
-    "recall": 0.19433223152187082,
-    "f1_score": 0.1804600446900714
+    "precision": 0.584527401430133,
+    "recall": 0.6402877135809143,
+    "f1_score": 0.5732636397445622
   }
 }
