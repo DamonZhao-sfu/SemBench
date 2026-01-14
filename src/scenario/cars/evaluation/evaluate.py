@@ -29,7 +29,7 @@ class CarsEvaluator(GenericEvaluator):
 
     def _load_domain_data(self) -> None:
         #  Read full data w/ labels
-        full_data_path = self._root / "data" / "full_data" / "full_data"
+        full_data_path = self._root / "data" / "full_data"
         cars_df = pd.read_csv(full_data_path / f"car_data_full.csv")
         audio_df = pd.read_csv(full_data_path / f"audio_data_full.csv")
         image_df = pd.read_csv(full_data_path / f"image_data_full.csv")
@@ -56,9 +56,9 @@ class CarsEvaluator(GenericEvaluator):
 
     def _get_ground_truth(self, query_id: int) -> pd.DataFrame:
         query_name = f"Q{query_id}"
-        gt_path = self._results_path / "ground_truth" / f"{query_name}.csv"
-        if gt_path.exists():
-            return pd.read_csv(gt_path)
+        # gt_path = self._results_path / "ground_truth" / f"{query_name}.csv"
+        # if gt_path.exists():
+        #     return pd.read_csv(gt_path)
 
         ground_truth_fn = self._discover_ground_truth_impl(query_id)
         return ground_truth_fn()
@@ -66,7 +66,7 @@ class CarsEvaluator(GenericEvaluator):
     def _generate_q1_ground_truth(self) -> pd.DataFrame:
         # crash,fire,numberOfInjuries,summary,component_class,complaint_id,car_id
         crash = self.text_df[self.text_df["crash"] == True]
-        gt = crash["car_id"].drop_duplicates().copy()
+        gt = crash[["car_id"]].drop_duplicates().copy()
 
         path = self._results_path / "ground_truth" / f"Q1.csv"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,7 +78,7 @@ class CarsEvaluator(GenericEvaluator):
         car_audio_df = self.audio_df[self.audio_df["car_id"].isin(electric_cars["car_id"])]
         dead_battery_audio = car_audio_df[(car_audio_df["generic_problem"] == "startup state") & (car_audio_df["detailed_problem"] == "dead_battery")]
 
-        gt = dead_battery_audio["car_id"].drop_duplicates().copy()
+        gt = dead_battery_audio[["car_id"]].drop_duplicates().copy()
         path = self._results_path / "ground_truth" / f"Q2.csv"
         path.parent.mkdir(parents=True, exist_ok=True)
         gt.to_csv(path, index=False)
@@ -300,6 +300,9 @@ class CarsEvaluator(GenericEvaluator):
         if len(system_results.columns) > 0:
             system_results.columns = system_results.columns.str.lower()
         id_column = "car_id"
+
+        print(ground_truth)
+        print(system_results)
 
         precision = GenericEvaluator.compute_accuracy_score("precision", ground_truth, system_results, id_column=id_column).accuracy
         recall = GenericEvaluator.compute_accuracy_score("recall", ground_truth, system_results, id_column=id_column).accuracy

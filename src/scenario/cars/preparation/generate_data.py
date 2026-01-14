@@ -1298,7 +1298,7 @@ def prepare_data(scaling_factor: int = 157376) -> None:
     # Check if data already exists
     base_folder = Path(__file__).resolve().parents[4] / "files" / "cars" / "data"
     base_folder_sf = base_folder / f"sf_{scaling_factor}"
-    base_folder_full = base_folder / "full_data" / "full_data"
+    base_folder_full = base_folder / "full_data" 
 
     # Check if scaled data already exists
     scaled_csv_files = [
