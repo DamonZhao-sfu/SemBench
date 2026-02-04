@@ -121,13 +121,22 @@ class MMQAEvaluator(GenericEvaluator):
         return compute_metrics(results, ground_truth)
 
     def _evaluate_q4(
-        self, system_results: pd.DataFrame, ground_truth_filepath: str
-    ) -> QueryMetricRetrieval:
+        self, system_results: pd.DataFrame, ground_truth_filepath: str) -> QueryMetricRetrieval:
         results = []
         for _, row in system_results.iterrows():
-            genre = row["genre"].strip().lower()
-
-            for movie in row["movies_in_genre"].split(","):
+            genre = row["genre"]
+            
+            # Skip rows with NaN or non-string genre values
+            if pd.isna(genre):
+                continue
+            
+            genre = str(genre).strip().lower()
+            
+            movies_in_genre = row["movies_in_genre"]
+            if pd.isna(movies_in_genre):
+                continue
+                
+            for movie in str(movies_in_genre).split(","):
                 results.append((genre, movie.strip().lower()))
 
         with open(ground_truth_filepath, "r") as f:
@@ -140,19 +149,44 @@ class MMQAEvaluator(GenericEvaluator):
 
         return compute_metrics(results, ground_truth)
 
+    # def _evaluate_q4(
+    #     self, system_results: pd.DataFrame, ground_truth_filepath: str
+    # ) -> QueryMetricRetrieval:
+    #     results = []
+    #     for _, row in system_results.iterrows():
+    #         genre = row["genre"].strip().lower()
+
+    #         for movie in row["movies_in_genre"].split(","):
+    #             results.append((genre, movie.strip().lower()))
+
+    #     with open(ground_truth_filepath, "r") as f:
+    #         raw_ground_truth = json.load(f).get("ground_truth")
+
+    #     ground_truth = set()
+    #     for genre, movies in raw_ground_truth.items():
+    #         for m in movies:
+    #             ground_truth.add((genre.strip().lower(), m.strip().lower()))
+
+    #     return compute_metrics(results, ground_truth)
+
     def _evaluate_q5(
-        self, system_results: list, ground_truth_filepath: str
-    ) -> QueryMetricRetrieval:
+    self, system_results: pd.DataFrame, ground_truth_filepath: str) -> QueryMetricRetrieval:
         results = []
         for _, row in system_results.iterrows():
             if "_output" in row:
-                results.append(row["_output"].strip().lower())
+                value = row["_output"]
             elif "actor" in row:
-                results.append(row["actor"].strip().lower())
+                value = row["actor"]
             else:
                 raise ValueError(
-                    "Expected either '_output' or 'actor' column in the results."  # noqa: E501
+                    "Expected either '_output' or 'actor' column in the results."
                 )
+            
+            # Skip NaN/None values or non-string values
+            if pd.isna(value) or not isinstance(value, str):
+                continue
+                
+            results.append(value.strip().lower())
 
         with open(ground_truth_filepath, "r") as f:
             ground_truth = set(json.load(f).get("ground_truth"))
@@ -163,7 +197,13 @@ class MMQAEvaluator(GenericEvaluator):
     def _evaluate_q6(
         self, system_results: pd.DataFrame, ground_truth_filepath: str
     ) -> QueryMetricRetrieval:
-        results = system_results["Airlines"].tolist()
+        print(system_results.columns)
+        
+        # Handle empty DataFrame
+        if system_results.empty or "Airlines" not in system_results.columns:
+            results = []
+        else:
+            results = system_results["Airlines"].tolist()
 
         with open(ground_truth_filepath, "r") as f:
             ground_truth = set(json.load(f).get("ground_truth"))

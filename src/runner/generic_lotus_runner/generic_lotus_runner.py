@@ -22,6 +22,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Pricing rules: (text_input, audio_input, output) per 1M tokens
 PRICING = {
+    "llava-hf/llava-v1.6-mistral-7b-hf": {"text": 0.0, "audio": 0.0, "output": 0.0},
     "gpt-4o": {"text": 2.5, "audio": 2.5, "output": 10.0},
     "gpt-4o-mini": {"text": 0.15, "audio": 0.15, "output": 0.6},
     "gpt-4o-audio-preview": {
@@ -120,6 +121,14 @@ class GenericLotusRunner(GenericRunner):
                 max_tokens=self.max_tokens,
                 reasoning_effort="low",
             )
+        # In _configure_lm(), add a branch for local/custom models:
+        elif "llava" in model_lower or "localhost" in model_lower or "local" in model_lower:
+            return LM(
+                f"hosted_vllm/{self.model_name}",  # LiteLLM prefix for vLLM
+                api_base="http://localhost:8000/v1",
+                **base_config
+            )
+    
         elif (
             "gemini-2.5-flash" in model_lower
             or "gemini_2_5_flash" in model_lower

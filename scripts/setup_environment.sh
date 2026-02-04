@@ -136,8 +136,8 @@ print_step "Installing lotus-ai..."
 $PIP_PATH install lotus-ai==1.1.3
 
 # Install palimpzest without dependencies (to avoid numpy conflict)
-print_step "Installing palimpzest..."
-$PIP_PATH install palimpzest==0.8.2 --no-deps
+# print_step "Installing palimpzest..."
+# $PIP_PATH install palimpzest==0.8.2 --no-deps
 
 # Install palimpzest dependencies separately
 print_step "Installing palimpzest dependencies..."

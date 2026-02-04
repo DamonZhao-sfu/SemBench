@@ -137,6 +137,9 @@ Note
 - The databases included in the repository are provided for demonstration purposes only. Before running your own experiments, please delete the existing `files/{scenario}/data` directory and execute the scripts to regenerate the data.
 
 ### Running Benchmarks
+
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+
 ```bash
 # Run specific system on specific use case and queries
 python3 src/run.py --systems lotus --use-cases movie --queries 1 3 --model gemini-2.5-flash --scale-factor 2000
@@ -160,6 +163,15 @@ python3 src/table_brick_design.py
 
 # Generate analysis report
 python3 src/scripts/analysis.py
+```
+
+### 
+```
+conda activate sembench
+
+python3 src/run.py --systems lotus --model llava-hf/llava-v1.6-mistral-7b-hf  --use-cases mmqa --queries 1 2a 3a 3f 4 5 6a 6b 6c 7  --scale-factor 200
+python3 src/run.py --systems palimpzest --model hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf  --use-cases mmqa --queries 1 3a 3f 4 5 6a 6b 6c 7  --scale-factor 200
+python3 src/run.py --systems thalamusdb --model hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf  --use-cases mmqa --queries 1 3a 3f 4 5 6a 6b 6c 7  --scale-factor 200
 ```
 
 ### Output Structure

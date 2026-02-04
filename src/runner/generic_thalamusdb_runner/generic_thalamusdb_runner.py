@@ -28,6 +28,10 @@ from tdb.queries.query import Query
 import traceback
 from ..generic_runner import GenericRunner, GenericQueryMetric
 
+# Use 'anything' or 'sk-1234' as a placeholder if your local vLLM isn't gated
+os.environ["OPENAI_API_BASE"] = "http://localhost:8000/v1"
+os.environ["HOSTED_VLLM_API_KEY"] = "sk-1234" 
+os.environ["OPENAI_API_KEY"] = "sk-1234"
 
 class GenericThalamusDBRunner(GenericRunner):
     """Base class for ThalamusDB system runners."""
@@ -70,7 +74,9 @@ class GenericThalamusDBRunner(GenericRunner):
         model_name_to_file_name = {
             "gemini-2.5-flash": "gemini_2.5flash",
             "gpt_5mini": "gpt_5mini",
-            "gemini-2.5-pro": "gemini_2.5pro"
+            "gemini-2.5-pro": "gemini_2.5pro",
+            "llava-local": "llava_local",
+            "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf": "llava_v1.6_mistral_7b"
         }
         self.engine = ExecutionEngine(
             self.db,
@@ -204,6 +210,11 @@ class GenericThalamusDBRunner(GenericRunner):
                         "text": 1.25,
                         "audio": 1.25,
                         "output": 10.0,
+                    },
+                    "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf": {
+                        "text": 0,
+                        "audio": 0,
+                        "output": 0,
                     },
                 }
 
