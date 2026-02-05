@@ -126,6 +126,7 @@ class GenericLotusRunner(GenericRunner):
             return LM(
                 f"hosted_vllm/{self.model_name}",  # LiteLLM prefix for vLLM
                 api_base="http://localhost:8000/v1",
+                api_key="dummy",  # vLLM doesn't validate keys; this bypasses OpenAI SDK auth
                 **base_config
             )
     
