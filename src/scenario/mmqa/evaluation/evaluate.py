@@ -63,6 +63,14 @@ class MMQAEvaluator(GenericEvaluator):
     def _evaluate_q1(
         self, system_results: pd.DataFrame, ground_truth_filepath: str
     ) -> QueryMetricRetrieval:
+        # Handle empty DataFrame or missing columns (e.g., query execution failed)
+        if system_results.empty or "director" not in system_results.columns:
+            with open(ground_truth_filepath, "r") as f:
+                ground_truth = {
+                    g.strip().lower() for g in json.load(f).get("ground_truth")
+                }
+            return compute_metrics([], ground_truth)
+
         results = []
         for _, row in system_results.iterrows():
             results.append(row["director"].strip(' "').lower())
@@ -83,6 +91,13 @@ class MMQAEvaluator(GenericEvaluator):
             system_results.rename(
                 columns={"filename": "image_id"}, inplace=True
             )
+
+        # Handle empty DataFrame or missing columns (e.g., query execution failed)
+        if system_results.empty or "image_id" not in system_results.columns:
+            with open(ground_truth_filepath, "r") as f:
+                ground_truth = json.load(f).get("ground_truth")
+                ground_truth = set(tuple(g) for g in ground_truth)
+            return compute_metrics([], ground_truth)
 
         results = set()
         for _, row in system_results.iterrows():
@@ -113,6 +128,12 @@ class MMQAEvaluator(GenericEvaluator):
     def _evaluate_q3(
         self, system_results: pd.DataFrame, ground_truth_filepath: str
     ) -> QueryMetricRetrieval:
+        # Handle empty DataFrame or missing columns (e.g., query execution failed)
+        if system_results.empty or "title" not in system_results.columns:
+            with open(ground_truth_filepath, "r") as f:
+                ground_truth = set(json.load(f).get("ground_truth"))
+            return compute_metrics([], ground_truth)
+
         results = system_results["title"].tolist()
 
         with open(ground_truth_filepath, "r") as f:
@@ -122,6 +143,16 @@ class MMQAEvaluator(GenericEvaluator):
 
     def _evaluate_q4(
         self, system_results: pd.DataFrame, ground_truth_filepath: str) -> QueryMetricRetrieval:
+        # Handle empty DataFrame or missing columns (e.g., query execution failed)
+        if system_results.empty or "genre" not in system_results.columns or "movies_in_genre" not in system_results.columns:
+            with open(ground_truth_filepath, "r") as f:
+                raw_ground_truth = json.load(f).get("ground_truth")
+            ground_truth = set()
+            for genre, movies in raw_ground_truth.items():
+                for m in movies:
+                    ground_truth.add((genre.strip().lower(), m.strip().lower()))
+            return compute_metrics([], ground_truth)
+
         results = []
         for _, row in system_results.iterrows():
             genre = row["genre"]
@@ -171,6 +202,13 @@ class MMQAEvaluator(GenericEvaluator):
 
     def _evaluate_q5(
     self, system_results: pd.DataFrame, ground_truth_filepath: str) -> QueryMetricRetrieval:
+        # Handle empty DataFrame or missing columns (e.g., query execution failed)
+        if system_results.empty or ("_output" not in system_results.columns and "actor" not in system_results.columns):
+            with open(ground_truth_filepath, "r") as f:
+                ground_truth = set(json.load(f).get("ground_truth"))
+                ground_truth = {g.strip().lower() for g in ground_truth}
+            return compute_metrics([], ground_truth)
+
         results = []
         for _, row in system_results.iterrows():
             if "_output" in row:
@@ -219,6 +257,13 @@ class MMQAEvaluator(GenericEvaluator):
             system_results.rename(
                 columns={"filename": "image_id"}, inplace=True
             )
+
+        # Handle empty DataFrame or missing columns (e.g., query execution failed)
+        if system_results.empty or "Airlines" not in system_results.columns or "image_id" not in system_results.columns:
+            with open(ground_truth_filepath, "r") as f:
+                ground_truth = json.load(f).get("ground_truth", [])
+                ground_truth = set(tuple(g) for g in ground_truth)
+            return compute_metrics([], ground_truth)
 
         results = set()
         for _, row in system_results.iterrows():
