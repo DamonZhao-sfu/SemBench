@@ -122,6 +122,8 @@ class MMQAEvaluator(GenericEvaluator):
 
     def _evaluate_q4(
         self, system_results: pd.DataFrame, ground_truth_filepath: str) -> QueryMetricRetrieval:
+        if system_results.empty or "genre" not in system_results.columns:
+            return compute_metrics([], set())  # or whatever empty result is appropriate
         results = []
         for _, row in system_results.iterrows():
             genre = row["genre"]
@@ -148,26 +150,6 @@ class MMQAEvaluator(GenericEvaluator):
                 ground_truth.add((genre.strip().lower(), m.strip().lower()))
 
         return compute_metrics(results, ground_truth)
-
-    # def _evaluate_q4(
-    #     self, system_results: pd.DataFrame, ground_truth_filepath: str
-    # ) -> QueryMetricRetrieval:
-    #     results = []
-    #     for _, row in system_results.iterrows():
-    #         genre = row["genre"].strip().lower()
-
-    #         for movie in row["movies_in_genre"].split(","):
-    #             results.append((genre, movie.strip().lower()))
-
-    #     with open(ground_truth_filepath, "r") as f:
-    #         raw_ground_truth = json.load(f).get("ground_truth")
-
-    #     ground_truth = set()
-    #     for genre, movies in raw_ground_truth.items():
-    #         for m in movies:
-    #             ground_truth.add((genre.strip().lower(), m.strip().lower()))
-
-    #     return compute_metrics(results, ground_truth)
 
     def _evaluate_q5(
     self, system_results: pd.DataFrame, ground_truth_filepath: str) -> QueryMetricRetrieval:

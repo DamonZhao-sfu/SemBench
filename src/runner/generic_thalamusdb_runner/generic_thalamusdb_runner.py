@@ -76,7 +76,8 @@ class GenericThalamusDBRunner(GenericRunner):
             "gpt_5mini": "gpt_5mini",
             "gemini-2.5-pro": "gemini_2.5pro",
             "llava-local": "llava_local",
-            "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf": "llava_v1.6_mistral_7b"
+            "hosted_vllm/llava-hf/llava-v1.6-34b-hf": "llava-v1.6-34b-hf",
+            "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct": "Qwen3-VL-30B-A3B-Instruct"
         }
         self.engine = ExecutionEngine(
             self.db,
@@ -211,11 +212,16 @@ class GenericThalamusDBRunner(GenericRunner):
                         "audio": 1.25,
                         "output": 10.0,
                     },
-                    "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf": {
+                    "hosted_vllm/llava-hf/llava-v1.6-34b-hf": {
                         "text": 0,
                         "audio": 0,
                         "output": 0,
                     },
+                    "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct": {
+                        "text": 0,
+                        "audio": 0,
+                        "output": 0,
+                    }
                 }
 
                 token_usage_total = 0

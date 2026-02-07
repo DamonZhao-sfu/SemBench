@@ -4,12 +4,12 @@
 			"modalities":["text", "image"], "priority": 10,
 			"kwargs": {
 			    "filter": {
-					"model": "hosted_vllm/llava-hf/llava-v1.6-34b-hf",
+					"model": "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct",
 					"temperature": 0,
 					"max_tokens": 1
 				},
 				"join": {
-				    "model": "hosted_vllm/llava-hf/llava-v1.6-34b-hf",
+				    "model": "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct",
 					"temperature": 0,
 					"stop": ["."]
                 }
