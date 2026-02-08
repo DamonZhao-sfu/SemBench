@@ -25,10 +25,15 @@ from runner.generic_runner import GenericRunner, GenericQueryMetric
 litellm.drop_params = True
 
 # vLLM server configuration
-os.environ["OPENAI_API_BASE"] = "http://localhost:8000/v1"    # for litellm
-#os.environ["OPENAI_BASE_URL"] = "http://localhost:8000/v1"    # for openai SDK v1.x
-os.environ["HOSTED_VLLM_API_KEY"] = "sk-1234" 
-os.environ["OPENAI_API_KEY"] = "sk-1234"
+# os.environ["OPENAI_API_BASE"] = "http://localhost:8000/v1"    # for litellm
+# os.environ["OPENAI_BASE_URL"] = "http://localhost:8000/v1"    # for openai SDK v1.x
+# os.environ["HOSTED_VLLM_API_KEY"] = "sk-1234" 
+# os.environ["OPENAI_API_KEY"] = "sk-1234"
+
+_default_vllm_base = os.environ.get("VLLM_API_BASE", "http://localhost:8000/v1")
+os.environ.setdefault("OPENAI_API_BASE", _default_vllm_base)  # for litellm
+os.environ.setdefault("HOSTED_VLLM_API_BASE", _default_vllm_base)
+os.environ.setdefault("HOSTED_VLLM_API_KEY", "sk-1234")
 
 class GenericPalimpzestRunner(GenericRunner):
     """GenericRunner for Palimpzest system with vLLM support."""
@@ -81,6 +86,7 @@ class GenericPalimpzestRunner(GenericRunner):
         # Currently supporting llava-hf/llava-v1.6-mistral-7b-hf
         vllm_models = {
             "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf",
+            "hosted_vllm/llava-hf/llava-v1.6-34b-hf",
             "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct",
         }
         return model_name in vllm_models

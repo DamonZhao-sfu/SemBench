@@ -29,9 +29,12 @@ import traceback
 from ..generic_runner import GenericRunner, GenericQueryMetric
 
 # Use 'anything' or 'sk-1234' as a placeholder if your local vLLM isn't gated
-os.environ["OPENAI_API_BASE"] = "http://localhost:8000/v1"
-os.environ["HOSTED_VLLM_API_KEY"] = "sk-1234" 
-os.environ["OPENAI_API_KEY"] = "sk-1234"
+_default_vllm_base = os.environ.get("VLLM_API_BASE", "http://localhost:8000/v1")
+os.environ.setdefault("OPENAI_API_BASE", _default_vllm_base)
+os.environ.setdefault("OPENAI_BASE_URL", _default_vllm_base)
+os.environ.setdefault("HOSTED_VLLM_API_BASE", _default_vllm_base)
+os.environ.setdefault("HOSTED_VLLM_API_KEY", "sk-1234")
+os.environ.setdefault("OPENAI_API_KEY", os.environ["HOSTED_VLLM_API_KEY"])
 
 class GenericThalamusDBRunner(GenericRunner):
     """Base class for ThalamusDB system runners."""
