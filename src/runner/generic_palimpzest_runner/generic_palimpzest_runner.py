@@ -291,6 +291,12 @@ class GenericPalimpzestRunner(GenericRunner):
                 if "temperature" in vllm_config:
                     config_kwargs["temperature"] = vllm_config["temperature"]
 
+            # Disable RAG reduction for vLLM models because palimpzest's RAG
+            # optimization uses OpenAI's text-embedding-3-small by default,
+            # which is not available on a vLLM server.
+            if self._is_vllm_model(self.model_name):
+                config_kwargs["allow_rag_reduction"] = False
+
             return pz.QueryProcessorConfig(**config_kwargs)
         else:
             # Use self.model_name to determine the model when config_data is not provided
@@ -306,6 +312,12 @@ class GenericPalimpzestRunner(GenericRunner):
                 "available_models": [selected_model],
                 "api_base": os.environ.get("OPENAI_API_BASE"),
             }
+
+            # Disable RAG reduction for vLLM models because palimpzest's RAG
+            # optimization uses OpenAI's text-embedding-3-small by default,
+            # which is not available on a vLLM server.
+            if self._is_vllm_model(self.model_name):
+                config_kwargs["allow_rag_reduction"] = False
 
             # Add reasoning_effort for compatible models
             if self._should_use_reasoning_effort(selected_model):
