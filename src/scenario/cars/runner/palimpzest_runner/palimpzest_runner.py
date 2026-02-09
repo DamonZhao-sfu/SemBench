@@ -92,6 +92,10 @@ class PalimpzestRunner(GenericPalimpzestRunner):
                 if is_audio
                 else [Model.GPT_4o_MINI]
             )
+        elif model_name == "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct":
+            model = [Model.QWEN]
+        elif model_name in ["hosted_vllm/llava-hf/llava-v1.6-34b-hf", "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf"]:
+            model = [Model.QWEN]
         elif model_name == "gpt-4o":
             model = (
                 [Model.GPT_4o_AUDIO_PREVIEW, Model.GPT_4o]
@@ -132,4 +136,6 @@ class PalimpzestRunner(GenericPalimpzestRunner):
                 verbose=False,
                 progress=True,
                 available_models=model,
+                api_base="http://localhost:8000/v1",
+                allow_rag_reduction=False
             )

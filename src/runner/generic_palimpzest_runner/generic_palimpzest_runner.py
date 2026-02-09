@@ -32,6 +32,9 @@ litellm.drop_params = True
 
 _default_vllm_base = os.environ.get("VLLM_API_BASE", "http://localhost:8000/v1")
 os.environ.setdefault("OPENAI_API_BASE", _default_vllm_base)  # for litellm
+os.environ.setdefault("OPENAI_BASE_URL", _default_vllm_base)  # for litellm
+os.environ.setdefault("OPENAI_API_KEY", "sk-1234")  # for litellm
+
 os.environ.setdefault("HOSTED_VLLM_API_BASE", _default_vllm_base)
 os.environ.setdefault("HOSTED_VLLM_API_KEY", "sk-1234")
 
@@ -195,12 +198,14 @@ class GenericPalimpzestRunner(GenericRunner):
         # Check if this is a vLLM model
         if self._is_vllm_model(model_name):
             # Try to get vLLM model constant if it exists
+            
             if hasattr(Model, 'VLLM_LLAVA'):
                 print(f"Using vLLM model: {model_name}")
                 return Model.VLLM_LLAVA
             elif hasattr(Model, "QWEN"):
                 print(f"Using vLLM model: {model_name}")
                 return Model.QWEN
+
             else:
                 # Fallback: use as OpenAI-compatible model
                 print(f"Using vLLM model via OpenAI API: {model_name}")
@@ -276,6 +281,7 @@ class GenericPalimpzestRunner(GenericRunner):
                 "available_models": self._get_models_from_config(
                     self.config_data["available_models"]
                 ),
+                "allow_rag_reduction": False
             }
 
             # Only add reasoning_effort if it's not null in the config
@@ -305,6 +311,7 @@ class GenericPalimpzestRunner(GenericRunner):
                 "progress": True,
                 "available_models": [selected_model],
                 "api_base": os.environ.get("OPENAI_API_BASE"),
+                "allow_rag_reduction": False
             }
 
             # Add reasoning_effort for compatible models
@@ -438,4 +445,3 @@ class GenericPalimpzestRunner(GenericRunner):
                     query_ids.append(int(match.group(1)))
 
         return sorted(query_ids)
-

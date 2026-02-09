@@ -25,6 +25,39 @@ class CarsScenario:
         self.data_dir = CARS_FILES_DIR
         self.scale_factor = scale_factor
 
+    def discover_available_queries(self, system_name: str = None) -> List[int]:
+        """
+        Discover available queries for the movie scenario.
+
+        Returns:
+            List of query IDs.
+        """
+        if system_name is None:
+            # Return all possible queries from lotus directory
+            system_query_dir = os.path.abspath(
+                os.path.join(CARS_FILES_DIR, "query", "lotus")
+            )
+        else:
+            system_query_dir = os.path.abspath(
+                os.path.join(CARS_FILES_DIR, "query", system_name)
+            )
+
+        if not os.path.exists(system_query_dir):
+            return []
+
+        query_files = glob.glob(os.path.join(system_query_dir, "Q*.*"))
+        query_ids = []
+        for f in query_files:
+            try:
+                # Extract number from filename like Q1.py or Q1.sql
+                filename = os.path.basename(f)
+                query_id = int(filename[1:].split(".")[0])
+                query_ids.append(query_id)
+            except ValueError:
+                continue
+        return sorted(query_ids)
+
+
     def setup_scenario(self, systems: List[str]) -> None:
         # Download and prepare data if not already done
         prepare_data(scaling_factor=self.scale_factor)
