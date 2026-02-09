@@ -32,34 +32,12 @@ The `CarComplaint` table contains text complaints (`summary`) describing vehicle
 ## Queries
 
 - Find cars that were in a crash/accident/collision.
-
-- Find cars with available audio recordings that show a dead battery.
-
-- Find ten cars that are damaged according to images.
-
-- How many 'Automatic' transmission cars are damaged according to audio and images?
-
+- Find electric cars with available audio recordings that show a dead battery.
+- Find ten cars with manual transmission that are damaged according to images.
+- What is average age of cars with engine problems?
+- How many automatic cars are damaged according to both audio and images?
 - Find cars that are damaged according to one modality but not the other. For this query, for complaints, check if the car was on fire.
-
-- Find cars that are either dented (image), have worn out brakes (audio), or have electrical system problems (text). They should be damaged at least according to a single modality.
-
+- Find cars that are either dented (image), have worn out brakes (audio), or have electrical system problems (text), i.e., damaged at least according to a single modality.
 - Find a hundred cars with punctures and paint scratches on images.
-
 - Find cars that are torn according to images and have bad ignition according to audio.
-
-- For all complaints, generate a component category from a given list of component classes.
-
-
-
-
-- Find cars that were in a crash/accident/collision.
-- Find electric cars with available audio recordings that show a dead battery. 
-- Find ten cars with manual transmission that are damaged according to images. 
-- What is average age of cars with engine problems? 
-- How many automatic cars are damaged according to both audio and images? 
-- Find cars that are damaged according to one modality but not the other. For this query, for complaints, check if the car was on fire. [Text, Audio, Image]
-- Find cars that are either dented (image), have worn out brakes (audio), or have electrical system problems (text), i.e., damaged at least according to a single modality. 
-- Find a hundred cars with punctures and paint scratches on images. 
-- Find cars that are torn according to images and have bad ignition according to audio. 
-- For all complaints, classify which car component is problematic according to the complaint. 
-
+- For all complaints, classify which car component is problematic according to the complaint.
