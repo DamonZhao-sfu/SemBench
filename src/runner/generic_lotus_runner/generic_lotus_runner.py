@@ -90,7 +90,7 @@ class GenericLotusRunner(GenericRunner):
         # Initialize LOTUS
 
         # to avoid exceeding the reasoning_token of gemini models, default in LOTUS is 512
-        self.max_tokens = 8192
+        self.max_tokens = 1024
 
         # Configure LM based on model_name
         self.lm = self._configure_lm()
@@ -124,6 +124,7 @@ class GenericLotusRunner(GenericRunner):
             )
         # In _configure_lm(), add a branch for local/custom models:
         elif "qwen" in model_lower or "llava" in model_lower or "localhost" in model_lower or "local" in model_lower:
+            print("running qwen")
             return LM(
                 f"hosted_vllm/{self.model_name}",  # LiteLLM prefix for vLLM
                 api_base="http://localhost:8000/v1",
