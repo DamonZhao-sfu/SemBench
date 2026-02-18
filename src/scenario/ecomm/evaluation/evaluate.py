@@ -28,7 +28,14 @@ class EcommEvaluator(GenericEvaluator):
         pass
 
     def _get_ground_truth(self, query_id: int) -> pd.DataFrame:
-        return self.scenario_handler.get_ground_truth(query_id)
+        gt = self.scenario_handler.get_ground_truth(query_id)
+
+        # Persist ground truth CSV to raw_results/ground_truth/
+        gt_path = self._results_path / "ground_truth" / f"Q{query_id}.csv"
+        gt_path.parent.mkdir(parents=True, exist_ok=True)
+        gt.to_csv(gt_path, index=False)
+
+        return gt
 
     def _evaluate_single_query(
         self,
