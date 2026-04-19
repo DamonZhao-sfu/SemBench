@@ -139,8 +139,13 @@ class GenericLotusRunner(GenericRunner):
             if is_thinking_model:
                 qwen_config["max_tokens"] = max(self.max_tokens, 4096)
                 extra_body["chat_template_kwargs"] = {"enable_thinking": False}
+            model_id = (
+                self.model_name
+                if self.model_name.startswith("hosted_vllm/")
+                else f"hosted_vllm/{self.model_name}"
+            )
             return LM(
-                f"hosted_vllm/{self.model_name}",  # LiteLLM prefix for vLLM
+                model_id,  # LiteLLM prefix for vLLM
                 api_base="http://localhost:8000/v1",
                 **({"extra_body": extra_body} if extra_body else {}),
                 **qwen_config
