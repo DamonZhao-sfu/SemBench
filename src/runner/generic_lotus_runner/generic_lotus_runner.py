@@ -6,12 +6,14 @@ Created on May 28, 2025
 LOTUS system runner implementation based on generic_runner for movie use case.
 """
 
+import os
 from overrides import override
 import pandas as pd
 import time
 from typing import List
 import lotus
 from lotus.models import LM
+import litellm
 import re
 from PIL import ImageFile
 
@@ -19,6 +21,12 @@ from runner.generic_runner import GenericRunner, GenericQueryMetric
 
 # Allow loading of truncated images (some source images may be incomplete)
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+# Opt-in HTTP-level tracing for diagnosing "no requests reach vLLM" hangs.
+# Set LOTUS_DEBUG=1 in the environment to enable.
+if os.environ.get("LOTUS_DEBUG"):
+    litellm.set_verbose = True
+    os.environ.setdefault("LITELLM_LOG", "DEBUG")
 
 # Pricing rules: (text_input, audio_input, output) per 1M tokens
 PRICING = {
@@ -277,9 +285,11 @@ class GenericLotusRunner(GenericRunner):
 
         try:
             query_fn = self._discover_query_impl(query_id)
+            print(f"[lotus] Executing Q{query_id}...", flush=True)
             start_time = time.time()
             results = query_fn()
             execution_time = time.time() - start_time
+            print(f"[lotus] Q{query_id} finished in {execution_time:.2f}s", flush=True)
 
             # Store results in metric
             metric.execution_time = execution_time
