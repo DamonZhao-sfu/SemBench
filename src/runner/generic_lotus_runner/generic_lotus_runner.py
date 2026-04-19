@@ -23,6 +23,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 # Pricing rules: (text_input, audio_input, output) per 1M tokens
 PRICING = {
     "llava-hf/llava-v1.6-34b-hf": {"text": 0.0, "audio": 0.0, "output": 0.0},
+    "Qwen/Qwen3.5-122B-A10B-FP8": {"text": 0.0, "audio": 0.0, "output": 0.0},
     "Qwen/Qwen3-VL-30B-A3B-Instruct": {"text": 0.0, "audio": 0.0, "output": 0.0},
     "gpt-4o": {"text": 2.5, "audio": 2.5, "output": 10.0},
     "gpt-4o-mini": {"text": 0.15, "audio": 0.15, "output": 0.6},
@@ -125,10 +126,24 @@ class GenericLotusRunner(GenericRunner):
         # In _configure_lm(), add a branch for local/custom models:
         elif "qwen" in model_lower or "llava" in model_lower or "localhost" in model_lower or "local" in model_lower:
             print("running qwen")
+            # Thinking models (e.g. Qwen3.5-35B-A3B) use reasoning_content which
+            # exhausts max_tokens, leaving content=None. Use higher max_tokens and
+            # pass extra_body to disable thinking mode so all tokens go to content.
+            is_thinking_model = any(
+                tag in model_lower
+                for tag in ["qwen3.5", "qwen3-", "qwen3/"]
+                if "instruct" not in model_lower
+            )
+            qwen_config = {**base_config}
+            extra_body = {}
+            if is_thinking_model:
+                qwen_config["max_tokens"] = max(self.max_tokens, 4096)
+                extra_body["chat_template_kwargs"] = {"enable_thinking": False}
             return LM(
                 f"hosted_vllm/{self.model_name}",  # LiteLLM prefix for vLLM
                 api_base="http://localhost:8000/v1",
-                **base_config
+                **({"extra_body": extra_body} if extra_body else {}),
+                **qwen_config
             )
     
         elif (
