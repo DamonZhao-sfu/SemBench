@@ -28,6 +28,136 @@ if os.environ.get("LOTUS_DEBUG"):
     litellm.set_verbose = True
     os.environ.setdefault("LITELLM_LOG", "DEBUG")
 
+
+# ---------------------------------------------------------------------------
+# Harness alignment patches
+# ---------------------------------------------------------------------------
+# The LLMSQL harness (proxy_model.py) sends a specific request shape to vLLM:
+#   - system prompt: short "True/False" data-analyst instruction
+#   - user content: [text, then image_url blocks with file:// URLs]
+#   - response parser: substring "true" (case-insensitive) → positive
+# Lotus's defaults differ on all three, which moves F1 even when the
+# *semantics* of the query are identical. These patches override the three
+# hook points in lotus 1.1.3 so lotus's sem_filter emits a byte-for-byte
+# equivalent request to the one the harness sends in its no_opt baseline.
+#
+# Opt out with LOTUS_HARNESS_ALIGN=0.
+# ---------------------------------------------------------------------------
+
+_HARNESS_PATCHED = False
+
+HARNESS_FILTER_SYSTEM_PROMPT = (
+    "You are a helpful data analyst. You will receive data and a query. "
+    "Answer ONLY 'True' or 'False'."
+)
+
+
+def _apply_harness_alignment_patches():
+    """Monkey-patch lotus 1.1.3 internals to match the LLMSQL harness request shape.
+
+    Idempotent — safe to call multiple times. Opt out via LOTUS_HARNESS_ALIGN=0.
+    """
+    global _HARNESS_PATCHED
+    if _HARNESS_PATCHED:
+        return
+    if os.environ.get("LOTUS_HARNESS_ALIGN", "1").strip() in ("0", "false", "False"):
+        print("[harness-align] disabled via LOTUS_HARNESS_ALIGN=0")
+        _HARNESS_PATCHED = True
+        return
+
+    # (1) Images: return file:// URLs instead of base64 data URIs.
+    try:
+        from lotus.dtype_extensions import image as _image_mod
+
+        _orig_get_image = _image_mod.ImageArray.get_image
+
+        def _harness_get_image(self, idx, image_type="Image"):
+            if image_type == "base64":
+                raw = self._data[idx]
+                if isinstance(raw, str):
+                    url = raw.strip()
+                    if not url.startswith(("file://", "http://", "https://", "data:")):
+                        url = "file://" + os.path.abspath(url)
+                    # Cache under the same key lotus uses so repeat lookups
+                    # don't reenter this function.
+                    self._cached_images[(idx, image_type)] = url
+                    return url
+            return _orig_get_image(self, idx, image_type)
+
+        _image_mod.ImageArray.get_image = _harness_get_image
+        print("[harness-align] patched ImageArray.get_image -> file:// URLs")
+    except Exception as e:
+        print(f"[harness-align] WARNING: could not patch ImageArray.get_image: {e}")
+
+    # (2) filter_formatter: emit harness-style system + user content.
+    try:
+        from lotus.templates import task_instructions as _ti
+
+        def _harness_filter_formatter(
+            model, multimodal_data, user_instruction,
+            examples_multimodal_data=None, examples_answer=None,
+            cot_reasoning=None, strategy=None, reasoning_instructions="",
+        ):
+            # Build user content: [text block, then image_url blocks].
+            if isinstance(multimodal_data, str):
+                text = multimodal_data
+                image_inputs = []
+            else:
+                text = multimodal_data.get("text", "") or ""
+                image_data = multimodal_data.get("image", {}) or {}
+                image_inputs = [
+                    {"type": "image_url", "image_url": {"url": url}}
+                    for url in image_data.values()
+                ]
+            # The harness puts the predicate text first, then the image
+            # blocks, with no "Context:" prefix and no trailing instruction.
+            user_text = (user_instruction or "").strip()
+            if text:
+                user_text = f"{user_text}\n{text}".strip() if user_text else text
+            content = [{"type": "text", "text": user_text}] + image_inputs
+            if not image_inputs:
+                # Text-only: flatten to a plain string so litellm doesn't
+                # wrap it as a multimodal content array.
+                content = user_text
+            return [
+                {"role": "system", "content": HARNESS_FILTER_SYSTEM_PROMPT},
+                {"role": "user", "content": content},
+            ]
+
+        _ti.filter_formatter = _harness_filter_formatter
+        print("[harness-align] patched task_instructions.filter_formatter")
+    except Exception as e:
+        print(f"[harness-align] WARNING: could not patch filter_formatter: {e}")
+
+    # (3) filter_postprocess: substring "true" (case-insensitive) -> positive.
+    try:
+        from lotus.sem_ops import postprocessors as _pp
+
+        _orig_filter_post = _pp.filter_postprocess
+
+        def _harness_filter_postprocess(llm_answers, default=True, cot_reasoning=False):
+            outputs = [("true" in (a or "").strip().lower()) for a in llm_answers]
+            explanations = list(llm_answers)
+            reasonings = [""] * len(llm_answers)
+            try:
+                from lotus.types import SemanticFilterPostprocessOutput
+                return SemanticFilterPostprocessOutput(
+                    raw_outputs=list(llm_answers),
+                    outputs=outputs,
+                    explanations=explanations,
+                )
+            except Exception:
+                # Fall back to lotus's original parser if the return type
+                # isn't importable — at least we still matched (1) and (2).
+                return _orig_filter_post(llm_answers, default=default, cot_reasoning=cot_reasoning)
+
+        _pp.filter_postprocess = _harness_filter_postprocess
+        print("[harness-align] patched postprocessors.filter_postprocess (substring 'true')")
+    except Exception as e:
+        print(f"[harness-align] WARNING: could not patch filter_postprocess: {e}")
+
+    _HARNESS_PATCHED = True
+
 # Pricing rules: (text_input, audio_input, output) per 1M tokens
 PRICING = {
     "llava-hf/llava-v1.6-34b-hf": {"text": 0.0, "audio": 0.0, "output": 0.0},
@@ -142,10 +272,16 @@ class GenericLotusRunner(GenericRunner):
                 for tag in ["qwen3.5", "qwen3-", "qwen3/"]
                 if "instruct" not in model_lower
             )
-            qwen_config = {**base_config}
+            # Harness parity: short label responses + deterministic sampling.
+            # LLMSQL's proxy_model sends max_tokens=16, temperature=0.0.
+            qwen_config = {
+                "max_batch_size": self.concurrent_llm_worker,
+                "max_tokens": 16,
+                "temperature": 0.0,
+            }
             extra_body = {}
             if is_thinking_model:
-                qwen_config["max_tokens"] = max(self.max_tokens, 4096)
+                qwen_config["max_tokens"] = 4096
                 extra_body["chat_template_kwargs"] = {"enable_thinking": False}
             model_id = (
                 self.model_name
@@ -154,6 +290,7 @@ class GenericLotusRunner(GenericRunner):
             )
             api_base = "http://localhost:8000/v1"
             print(f"[lotus] LM model_id={model_id} api_base={api_base}")
+            _apply_harness_alignment_patches()
             return LM(
                 model_id,  # LiteLLM prefix for vLLM
                 api_base=api_base,
