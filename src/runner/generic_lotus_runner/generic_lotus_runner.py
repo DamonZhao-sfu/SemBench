@@ -144,9 +144,12 @@ class GenericLotusRunner(GenericRunner):
                 if self.model_name.startswith("hosted_vllm/")
                 else f"hosted_vllm/{self.model_name}"
             )
+            api_base = "http://localhost:8000/v1"
+            print(f"[lotus] LM model_id={model_id} api_base={api_base}")
             return LM(
                 model_id,  # LiteLLM prefix for vLLM
-                api_base="http://localhost:8000/v1",
+                api_base=api_base,
+                api_key="EMPTY",  # vLLM ignores it; LiteLLM requires a value
                 **({"extra_body": extra_body} if extra_body else {}),
                 **qwen_config
             )
@@ -189,15 +192,26 @@ class GenericLotusRunner(GenericRunner):
 
         for attempt in range(max_retries):
             try:
-                # Make a simple test call to establish connection
-                self.lm.__call__(["hi"], show_progress_bar=False)
+                # Make a simple test call to establish connection.
+                # lotus.LM expects messages as List[List[Dict]] (one
+                # conversation per row). Passing a raw string was a no-op
+                # for many lotus versions, so use a real chat message.
+                print(
+                    f"[lotus] warmup attempt {attempt + 1}: sending test request..."
+                )
+                self.lm.__call__(
+                    [[{"role": "user", "content": "hi"}]],
+                    show_progress_bar=False,
+                )
                 print(
                     f"LOTUS connection warmed up successfully on attempt {attempt + 1}"
                 )
                 break
 
             except Exception as e:
-                print(f"Warmup attempt {attempt + 1} failed: {str(e)}")
+                import traceback
+                print(f"Warmup attempt {attempt + 1} failed: {type(e).__name__}: {e}")
+                traceback.print_exc()
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                     retry_delay *= 2  # Exponential backoff
