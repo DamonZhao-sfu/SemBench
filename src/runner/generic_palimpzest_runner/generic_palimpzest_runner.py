@@ -88,9 +88,8 @@ class GenericPalimpzestRunner(GenericRunner):
         """
         # Currently supporting llava-hf/llava-v1.6-mistral-7b-hf
         vllm_models = {
-            "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf",
-            "hosted_vllm/llava-hf/llava-v1.6-34b-hf",
             "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct",
+            "hosted_vllm/Qwen/Qwen3.5-122B-A10B-FP8"
         }
         return model_name in vllm_models
 
@@ -169,7 +168,7 @@ class GenericPalimpzestRunner(GenericRunner):
             "GEMINI_2_5_FLASH": Model.GEMINI_2_5_FLASH,
             "GPT_4o_MINI": Model.GPT_4o_MINI,
             "GPT_5_MINI": Model.GPT_5_MINI,
-            "VLLM_LLAVA": Model.VLLM_LOCAL if hasattr(Model, 'VLLM_LLAVA') else None,
+            "VLLM_LLAVA": "Qwen/Qwen3-VL-30B-A3B-Instruct",
         }
 
         models = []
@@ -199,10 +198,7 @@ class GenericPalimpzestRunner(GenericRunner):
         if self._is_vllm_model(model_name):
             # Try to get vLLM model constant if it exists
             
-            if hasattr(Model, 'VLLM_LLAVA'):
-                print(f"Using vLLM model: {model_name}")
-                return Model.VLLM_LLAVA
-            elif hasattr(Model, "QWEN"):
+            if hasattr(Model, "QWEN"):
                 print(f"Using vLLM model: {model_name}")
                 return Model.QWEN
 

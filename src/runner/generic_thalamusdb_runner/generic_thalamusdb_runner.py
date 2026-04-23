@@ -80,7 +80,8 @@ class GenericThalamusDBRunner(GenericRunner):
             "gemini-2.5-pro": "gemini_2.5pro",
             "llava-local": "llava_local",
             "hosted_vllm/llava-hf/llava-v1.6-34b-hf": "llava-v1.6-34b-hf",
-            "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct": "Qwen3-VL-30B-A3B-Instruct"
+            "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct": "Qwen3-VL-30B-A3B-Instruct",
+            "hosted_vllm/Qwen/Qwen3.5-122B-A10B-FP8": "Qwen/Qwen3.5-122B-A10B-FP8"
         }
         self.engine = ExecutionEngine(
             self.db,

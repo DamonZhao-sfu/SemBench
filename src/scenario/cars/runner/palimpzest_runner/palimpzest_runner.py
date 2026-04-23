@@ -94,8 +94,8 @@ class PalimpzestRunner(GenericPalimpzestRunner):
             )
         elif model_name == "hosted_vllm/Qwen/Qwen3-VL-30B-A3B-Instruct":
             model = [Model.QWEN]
-        elif model_name in ["hosted_vllm/llava-hf/llava-v1.6-34b-hf", "hosted_vllm/llava-hf/llava-v1.6-mistral-7b-hf"]:
-            model = [Model.QWEN]
+        elif model_name == "hosted_vllm/Qwen/Qwen3.5-122B-A10B-FP8":
+            model = [Model.QWEN35]
         elif model_name == "gpt-4o":
             model = (
                 [Model.GPT_4o_AUDIO_PREVIEW, Model.GPT_4o]
