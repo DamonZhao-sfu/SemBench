@@ -7,6 +7,7 @@ LOTUS system runner implementation based on generic_runner for movie use case.
 """
 
 from overrides import override
+import os
 import pandas as pd
 import time
 from typing import List
@@ -139,12 +140,38 @@ class GenericLotusRunner(GenericRunner):
             return LM(
                 self.model_name, **base_config, reasoning_effort="minimal"
             )
+        elif model_lower.startswith("hosted_vllm/") or model_lower.startswith("openai/"):
+            # Self-hosted vLLM / OpenAI-compatible endpoint (e.g. local Qwen).
+            # LiteLLM routes via HOSTED_VLLM_API_BASE / OPENAI_API_BASE env vars,
+            # but we surface them explicitly so misconfiguration fails fast
+            # instead of hanging on a silent connection retry.
+            if model_lower.startswith("hosted_vllm/"):
+                api_base = os.environ.get("HOSTED_VLLM_API_BASE") or os.environ.get("VLLM_API_BASE")
+                api_key = os.environ.get("HOSTED_VLLM_API_KEY", "dummy")
+                env_hint = "HOSTED_VLLM_API_BASE"
+            else:
+                api_base = os.environ.get("OPENAI_API_BASE") or os.environ.get("VLLM_API_BASE")
+                api_key = os.environ.get("OPENAI_API_KEY", "dummy")
+                env_hint = "OPENAI_API_BASE"
+            if not api_base:
+                raise RuntimeError(
+                    f"Model '{self.model_name}' requires {env_hint} to point at your vLLM server "
+                    f"(e.g. http://localhost:8000/v1). Set it and rerun."
+                )
+            print(f"Routing '{self.model_name}' to {api_base}")
+            return LM(
+                self.model_name,
+                **base_config,
+                api_base=api_base,
+                api_key=api_key,
+                timeout=120,
+            )
         else:
             # Default configuration for unknown models (no reasoning_effort)
             print(
                 f"Warning: Unknown model '{self.model_name}', using default configuration"
             )
-            return LM(self.model_name, **base_config)
+            return LM(self.model_name, **base_config, timeout=120)
 
     def _initialize_lotus_with_warmup(self):
         """Initialize LOTUS and perform connection warmup to avoid first-query errors."""
@@ -156,10 +183,11 @@ class GenericLotusRunner(GenericRunner):
         max_retries = 3
         retry_delay = 1.0
 
+        warmup_messages = [[{"role": "user", "content": "hi"}]]
         for attempt in range(max_retries):
             try:
                 # Make a simple test call to establish connection
-                self.lm.__call__(["hi"], show_progress_bar=False)
+                self.lm.__call__(warmup_messages, show_progress_bar=False)
                 print(
                     f"LOTUS connection warmed up successfully on attempt {attempt + 1}"
                 )
