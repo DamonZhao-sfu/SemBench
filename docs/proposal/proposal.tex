@@ -1,0 +1,190 @@
+%% Amazon Research Awards -- AWS Agentic AI (Spring 2026)
+%% Draft proposal; follows the ARA proposal template (11pt, 1-inch margins).
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing{\section}{0pt}{1.0ex plus 0.3ex minus 0.2ex}{0.6ex plus 0.2ex}
+\titlespacing{\subsection}{0pt}{0.8ex plus 0.3ex minus 0.2ex}{0.4ex plus 0.2ex}
+
+\setlength{\parskip}{0.25em}
+\setlength{\parindent}{1.2em}
+
+\hypersetup{colorlinks=true, linkcolor=blue!55!black, citecolor=blue!55!black, urlcolor=blue!55!black}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Practical Agentic Analytics over Multi-Modal Data:\\
+Economic LLM Orchestration via Sampling-Driven Proxy Agents}\\[4pt]
+{\small AWS Agentic AI Call for Proposals -- Spring 2026}\\[2pt]
+{\small Principal Investigator: \textit{[Name]}, \textit{[Department, Institution]}, \textit{[email]}}\\[2pt]
+{\small Keywords: agentic analytics, semantic operators, multi-modal query processing, LLM cost optimization, proxy models}
+\end{center}
+
+\vspace{-0.4em}
+
+\section*{Project Abstract}
+Modern enterprises hold petabytes of data that sit awkwardly between two worlds: structured tables that relational analytics handles well, and unstructured or multi-modal content (text, images, audio, video) that traditional BI stacks cannot reason over. Large language models (LLMs) now make it possible to \emph{query} this content semantically---filtering, joining, ranking, and classifying records using natural-language predicates~\cite{patel2024lotus,patel2025lotus,liu2024palimpzest,shankar2025docetl,jo2024thalamusdb}. A new class of \emph{semantic query processing engines} is emerging to support such workloads, and recent benchmarking reveals both their promise and their growing pains: accuracy varies widely, and dollar cost and latency on realistic data sizes are often prohibitive~\cite{lao2025sembench}.
+
+We propose a two-year research program on \textbf{economic agentic analytics}: a principled framework that turns expensive LLM calls into a budgeted resource managed by analytics-aware agents. The agents learn lightweight \emph{proxy models} from small LLM-labeled samples, orchestrate model cascades, and plan which records truly require frontier-model reasoning. The project combines (i) a \emph{sampling-and-proxy economic agent} inspired by recent work from Google~\cite{chung2026proxy} and Stanford's SUPG line~\cite{kang2020supg}, (ii) a cost-based agentic optimizer extending \cite{russo2025abacus} with online sampling, and (iii) integration and evaluation on SemBench~\cite{lao2025sembench} and AWS data services (Amazon Bedrock, Bedrock AgentCore, SageMaker, Athena, Redshift, and Bedrock Data Automation). Our goal is a practical agentic runtime that preserves analyst-acceptable quality while reducing LLM spend and latency by an order of magnitude on real, mixed-modality workloads.
+
+\section{Significance of the Research and Prior Work}
+
+\subsection{From Analytics to Agentic Analytics}
+Traditional analytics engines (warehouses, lakehouses, OLAP cubes) are excellent at scan, join, and aggregation over structured data, but they are blind to meaning in unstructured content. Users have therefore resorted to brittle ETL pipelines that extract hand-designed features before loading content into a warehouse, losing most of the signal in the process. Pretrained vision and language models partially closed the gap, yet each new analytical question still required a bespoke model and pipeline.
+
+Generative LLMs change the economics of this problem. A single frontier model can classify reviews, score images, extract structured fields from PDFs, compare audio clips, and answer free-form questions, all through natural-language specifications. The database community has responded with \emph{semantic operators}: declarative LLM-backed primitives (\texttt{sem\_filter}, \texttt{sem\_join}, \texttt{sem\_map}, \texttt{sem\_topk}, etc.) that plug into a relational plan~\cite{patel2024lotus,patel2025lotus}. LOTUS, Palimpzest~\cite{liu2024palimpzest}, DocETL~\cite{shankar2025docetl}, ThalamusDB~\cite{jo2024thalamusdb}, and emerging production engines such as Google's BigQuery AI and Snowflake Cortex AISQL~\cite{cortex2025} all embody this pattern. A recent vision paper even argues that Deep-Research-style LLM agents are becoming the next generation of analytics system, planning queries, calling operators, and refining answers iteratively~\cite{russo2025deepresearch}.
+
+\subsection{Why Agentic Analytics Needs Research, Not Just Engineering}
+Our recent benchmark SemBench~\cite{lao2025sembench} evaluates four semantic engines (LOTUS, Palimpzest, ThalamusDB, BigQuery AI) across 55 queries on five realistic scenarios spanning tables, text, images, and audio. The findings expose three tensions that any production agentic analytics system must resolve:
+
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]
+\item \textbf{Cost.} Answering a single semantic-join query on the 157k-row Cars scenario with a frontier LLM can incur double-digit dollar cost and tens of minutes of latency. Naively scaling to billions of rows is economically infeasible~\cite{chung2026proxy,chen2023frugalgpt}.
+\item \textbf{Quality-cost trade-off.} Cheaper models, smaller contexts, or aggressive sampling often trade accuracy in subtle, workload-dependent ways. Without guarantees, analysts cannot trust the output~\cite{kang2020supg,patel2025lotus}.
+\item \textbf{Heterogeneity.} Multi-modal inputs, diverse operators, and rapidly evolving LLM APIs make static pipelines obsolete within months. The system must \emph{adapt at query time}.
+\end{itemize}
+
+\subsection{Related Lines of Work}
+Our proposal builds on four threads. \emph{(1) Proxy-model query acceleration.} SUPG~\cite{kang2020supg}, BlazeIt and TASTI~\cite{kang2022tasti} showed that cheap proxy classifiers, calibrated against a small oracle budget, can deliver selection and aggregation with statistical accuracy guarantees. A very recent Google paper~\cite{chung2026proxy} brings this idea into the LLM era: lightweight learned proxies over embedding vectors replace most LLM calls for AI-semantic filtering and ranking in BigQuery and AlloyDB, delivering reported $\sim$100$\times$ cost and latency reductions while preserving or even improving quality on 10M-row Amazon-reviews benchmarks. \emph{(2) Model cascades and routing.} FrugalGPT~\cite{chen2023frugalgpt} and LOTUS cascade operators~\cite{patel2025lotus} run a cheap model first and escalate only when confidence is low. \emph{(3) Cost-based optimization for semantic plans.} Abacus~\cite{russo2025abacus} searches the space of physical plans for a semantic program, picking models and operator implementations under user-specified quality, cost, or latency constraints. \emph{(4) Agentic rewriting.} DocETL~\cite{shankar2025docetl} uses an LLM agent to rewrite document-processing pipelines, raising accuracy by 21--80\% on real tasks.
+
+These threads are complementary but largely uncombined. Proxy approaches assume a fixed operator and workload; cascades do not know about plan-level joins; optimizers rely on offline cost models; agentic rewriting ignores the statistical accuracy-vs-cost question. Our project unifies them under a single economic agent that decides, per query and per tuple, how much LLM reasoning to spend and where.
+
+\section{Technical Approach}
+
+\subsection{Overview: The Economic Agent}
+We envision an \textbf{economic agent} wrapped around each semantic operator and, recursively, around the overall query plan. The agent takes as input a natural-language operator specification, a data source, and a user budget $(\$^{\max}, T^{\max}, Q^{\min})$ on cost, latency, and quality. It returns query answers together with statistical quality guarantees. Internally, it manages three budgets in a closed loop: a \emph{labeling budget} (LLM calls spent teaching cheap proxies), a \emph{verification budget} (LLM calls spent double-checking proxy predictions), and a \emph{reasoning budget} (LLM calls reserved for tuples the proxies cannot handle). Figure~\ref{fig:arch} in the appendix sketches the architecture.
+
+\subsection{Thread A: Sampling-and-Proxy Economic Agent}
+Motivated by~\cite{chung2026proxy,kang2020supg}, we will build a semantic-operator agent with the following inner loop:
+\begin{enumerate}[leftmargin=1.3em,itemsep=1pt,topsep=1pt]
+\item \textbf{Sample} a small calibration set $S$ from the input relation using stratified or embedding-guided sampling. The sampler is itself an agent action informed by data statistics and prior queries.
+\item \textbf{Label} $S$ with a strong LLM (e.g., Claude-class models on Amazon Bedrock) against the operator's natural-language predicate.
+\item \textbf{Train} a lightweight proxy---logistic regression, gradient-boosted trees, or a compact transformer head---over existing embedding features or Bedrock Data Automation outputs.
+\item \textbf{Deploy} the proxy to score the full relation; derive a confidence threshold $\tau$ so that the residual set falls within the user's quality budget with high probability, following SUPG-style concentration bounds~\cite{kang2020supg}.
+\item \textbf{Route} low-confidence tuples to the LLM, merge results, and \textbf{update} the proxy if drift is detected.
+\end{enumerate}
+Compared with~\cite{chung2026proxy}, our contribution is to (i) lift the approach from single-operator filtering/ranking to full plans with semantic joins and maps, (ii) share proxies across correlated queries and scenarios in a session, and (iii) expose the loop as a reusable agentic skill callable from an AWS Bedrock Agent.
+
+\subsection{Thread B: Cost-Based Agentic Optimizer with Online Sampling}
+A single-operator proxy is not enough when a query contains multiple semantic operators, or when cheaper decompositions exist (e.g., pushing a semantic filter below a join). Building on Abacus~\cite{russo2025abacus} and DocETL~\cite{shankar2025docetl}, we will design an agentic optimizer that:
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]
+\item Enumerates candidate physical plans, each annotated with model choice, operator implementation (exact LLM, cascade, proxy, or hybrid), and sampling strategy.
+\item Uses \emph{online} sampling to estimate per-operator selectivity and cost rather than offline profiling, so the optimizer adapts to previously unseen predicates and data.
+\item Treats the optimizer as an LLM agent that may propose algebraic rewrites (e.g., filter pushdown through semantic joins, predicate reordering, map-reduce decompositions of long-context prompts) and validates them with a small, held-out LLM-labeled set.
+\end{itemize}
+We will investigate whether a bandit or reinforcement-learning formulation, in which the agent allocates sampling rounds to the most uncertain plan candidates, outperforms the static cost models of Abacus on SemBench.
+
+\subsection{Thread C: Practicality---Quality Guarantees, Observability, and Multi-Modal Support}
+For either thread, practicality hinges on trust. We will (i) produce \emph{per-query confidence intervals} on result sets and aggregates, building on PPI and SUPG-style estimators adapted to semantic joins~\cite{kang2020supg}; (ii) expose a structured execution trace, compatible with Bedrock AgentCore observability, that lets analysts see which tuples were resolved by proxies versus LLMs and why; (iii) extend the agent to handle text, image, and audio modalities by routing modality-specific feature extraction through Amazon Bedrock Data Automation and Amazon SageMaker inference endpoints.
+
+\subsection{Evaluation Plan}
+We will evaluate on (a) SemBench~\cite{lao2025sembench}'s five scenarios (movie, wildlife, cars, e-commerce, MMQA), which together cover all four modalities and five operator classes; (b) at least one large-scale industrial workload, targeting the 10M-row Amazon-reviews setup used by~\cite{chung2026proxy}; and (c) an ablation study that isolates the contribution of sampling, proxies, cascades, and agentic rewriting. Metrics include dollar cost, end-to-end latency, F1/precision/recall for selection operators, relative error for aggregates, and ``analyst acceptability'' from user studies at our institution. Our public target is to match the quality of a frontier-model-only pipeline while reducing cost by $\geq$10$\times$ and tail latency by $\geq$5$\times$ across SemBench scenarios.
+
+\section{Expected Impact and Milestones}
+
+\textbf{Scientific impact.} The project delivers the first unified agentic framework that couples sampling-based proxy acceleration with plan-level cost-based optimization for multi-modal semantic queries, together with end-to-end accuracy guarantees. \textbf{Open-source impact.} All artifacts will land in SemBench and as pluggable agents for LOTUS and Palimpzest, broadening adoption. \textbf{AWS impact.} The economic agent is designed to run natively on Amazon Bedrock AgentCore and to plug into SageMaker Unified Studio, so findings transfer directly to AWS customers building agentic analytics on Redshift, Athena, and S3 Tables.
+
+\begin{center}
+\small
+\begin{tabular}{p{2.4cm} p{13.1cm}}
+\textbf{Month 1--4} & Design and open-source the sampling-and-proxy economic agent (Thread A) for \texttt{sem\_filter} and \texttt{sem\_rank}; reproduce and extend~\cite{chung2026proxy} on SemBench-Cars and SemBench-Product.\\
+\textbf{Month 5--9} & Extend Thread A to semantic joins and maps; add SUPG-style guarantees; release a tech report and a dataset of proxy--LLM disagreement traces.\\
+\textbf{Month 10--15} & Prototype the agentic optimizer (Thread B) on Palimpzest/LOTUS back-ends; integrate with Amazon Bedrock AgentCore; internal AWS-services integration milestone.\\
+\textbf{Month 16--20} & User study, SemBench leaderboard updates, and a workshop paper at CIDR/VLDB/SIGMOD.\\
+\textbf{Month 21--24} & Full research paper, public release of the agentic runtime, and a reproducible benchmark suite pinned to frozen Bedrock/Claude model versions.\\
+\end{tabular}
+\end{center}
+
+\section{AWS Products and Services to be Used}
+We plan to use the following AWS services, both as first-class execution targets and as integration points for our agents:
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]
+\item \textbf{Amazon Bedrock} for hosted frontier LLMs (Claude and other model families) used as labelers and verifiers, with prompt caching for the economic-agent loop.
+\item \textbf{Amazon Bedrock AgentCore} to deploy the economic agent as a managed, observable production agent with memory, tool use, and identity.
+\item \textbf{Amazon Bedrock Data Automation} for extracting structured features and embeddings from documents, images, and audio, feeding our proxy models.
+\item \textbf{Amazon SageMaker (AI / Unified Studio)} for training, hosting, and versioning proxy models and for running offline evaluations at scale.
+\item \textbf{Amazon Athena, Amazon Redshift, and S3 Tables (Iceberg)} as the data-plane underneath the agentic analytics runtime, so results flow back into customers' existing warehouses.
+\item \textbf{AWS Glue} for ingestion and cataloging of the multi-modal benchmark datasets.
+\end{itemize}
+
+\bibliographystyle{abbrv}
+\begin{thebibliography}{99}\small
+
+\bibitem{lao2025sembench}
+J.~Lao, A.~Zimmerer, O.~Ovcharenko, T.~Cong, M.~Russo, G.~Vitagliano, M.~Cochez, F.~{\"O}zcan, G.~Gupta, T.~Hottelier, H.~V.~Jagadish, K.~Kissel, S.~Schelter, A.~Kipf, and I.~Trummer.
+\newblock SemBench: A Benchmark for Semantic Query Processing Engines.
+\newblock \emph{arXiv:2511.01716}, 2025.
+
+\bibitem{patel2024lotus}
+L.~Patel, S.~Jha, C.~Guestrin, and M.~Zaharia.
+\newblock LOTUS: Enabling Semantic Queries with LLMs Over Tables of Unstructured and Structured Data.
+\newblock \emph{arXiv:2407.11418}, 2024.
+
+\bibitem{patel2025lotus}
+L.~Patel, S.~Jha, M.~Pan, H.~Gupta, P.~Asawa, C.~Guestrin, and M.~Zaharia.
+\newblock Semantic Operators and Their Optimization: Enabling LLM-Based Data Processing with Accuracy Guarantees in LOTUS.
+\newblock \emph{Proc. VLDB Endow.}, 18(11):4171--4184, 2025.
+
+\bibitem{liu2024palimpzest}
+C.~Liu, M.~Russo, M.~Cafarella, L.~Cao, P.~B.~Chen, Z.~Chen, M.~Franklin, T.~Kraska, S.~Madden, and G.~Vitagliano.
+\newblock A Declarative System for Optimizing AI Workloads.
+\newblock \emph{arXiv:2405.14696}, 2024.
+
+\bibitem{russo2025abacus}
+M.~Russo, S.~Sudhir, G.~Vitagliano, C.~Liu, T.~Kraska, S.~Madden, and M.~Cafarella.
+\newblock Abacus: A Cost-Based Optimizer for Semantic Operator Systems.
+\newblock \emph{arXiv:2505.14661}, 2025.
+
+\bibitem{shankar2025docetl}
+S.~Shankar, T.~Chambers, T.~Shah, A.~G.~Parameswaran, and E.~Wu.
+\newblock DocETL: Agentic Query Rewriting and Evaluation for Complex Document Processing.
+\newblock \emph{Proc. VLDB Endow.}, 18(9):3035--3048, 2025.
+
+\bibitem{jo2024thalamusdb}
+S.~Jo and I.~Trummer.
+\newblock ThalamusDB: Approximate Query Processing on Multi-Modal Data.
+\newblock \emph{Proc. ACM Manag. Data}, 2(3), Article 186, 2024.
+
+\bibitem{russo2025deepresearch}
+M.~Russo and T.~Kraska.
+\newblock Deep Research is the New Analytics System: Towards Building the Runtime for AI-Driven Analytics.
+\newblock \emph{arXiv:2509.02751}, 2025.
+
+\bibitem{chung2026proxy}
+Y.~Chung et al.
+\newblock 100x Cost and Latency Reduction: Performance Analysis of AI Query Approximation using Lightweight Proxy Models.
+\newblock \emph{arXiv:2603.15970}, 2026.
+
+\bibitem{kang2020supg}
+D.~Kang, E.~Gan, P.~Bailis, T.~Hashimoto, and M.~Zaharia.
+\newblock Approximate Selection with Guarantees using Proxies.
+\newblock \emph{Proc. VLDB Endow.}, 13(11):1990--2003, 2020.
+
+\bibitem{kang2022tasti}
+D.~Kang, J.~Guibas, P.~Bailis, T.~Hashimoto, Y.~Sun, and M.~Zaharia.
+\newblock TASTI: Semantic Indexes for Machine Learning-based Queries over Unstructured Data.
+\newblock In \emph{SIGMOD}, 2022.
+
+\bibitem{chen2023frugalgpt}
+L.~Chen, M.~Zaharia, and J.~Zou.
+\newblock FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance.
+\newblock \emph{arXiv:2305.05176}, 2023.
+
+\bibitem{cortex2025}
+Snowflake Research.
+\newblock Cortex AISQL: A Production SQL Engine for Unstructured Data.
+\newblock \emph{arXiv:2511.07663}, 2025.
+
+\end{thebibliography}
+
+\end{document}
