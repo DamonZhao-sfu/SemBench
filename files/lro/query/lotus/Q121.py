@@ -15,6 +15,7 @@ def run(data_dir: str, scale_factor: int = None):
     april = pd.read_csv(
         os.path.join(data_dir, "santos/01.Apr_2018.csv"),
         engine="python",
+        on_bad_lines="skip",
     )
     left = (
         april[["Supplier"]]
@@ -27,6 +28,7 @@ def run(data_dir: str, scale_factor: int = None):
     may = pd.read_csv(
         os.path.join(data_dir, "santos/2015_05_expenditure.csv"),
         engine="python",
+        on_bad_lines="skip",
     )
     right = (
         may[["Supplier"]]

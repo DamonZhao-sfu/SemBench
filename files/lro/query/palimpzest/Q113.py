@@ -16,6 +16,7 @@ def run(pz_config, data_dir: str, scale_factor: int = None):
             "santos/home_office_senior_officials_travel_data_return.csv",
         ),
         engine="python",
+        on_bad_lines="skip",
     )
     left = (
         home[["Name of Official"]]
@@ -28,6 +29,7 @@ def run(pz_config, data_dir: str, scale_factor: int = None):
     travel = pd.read_csv(
         os.path.join(data_dir, "santos/travel-exp-April-June-2018.csv"),
         engine="python",
+        on_bad_lines="skip",
     )
     right = (
         travel[["Senior Officials Name"]]

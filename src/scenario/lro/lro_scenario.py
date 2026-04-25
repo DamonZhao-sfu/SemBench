@@ -193,7 +193,9 @@ def _read_csv(data_dir: str, relative_path: str) -> pd.DataFrame:
     # the CSVs use standard double-quote escaping (""), which pandas handles
     # via the default doublequote=True. engine="python" allows newlines in
     # quoted fields. Do NOT set escapechar — it disables the doublequote rule.
-    return pd.read_csv(path, engine="python")
+    # on_bad_lines="skip" drops the few non-RFC-4180 rows that Spark's
+    # multiLine reader silently tolerates but the Python csv module rejects.
+    return pd.read_csv(path, engine="python", on_bad_lines="skip")
 
 
 def column_descriptor_df(
