@@ -70,6 +70,7 @@ def get_evaluator(use_case: str):
         "ecomm": "EcommEvaluator",
         "mmqa": "MMQAEvaluator",
         "cars": "CarsEvaluator",
+        "lro": "LROEvaluator",
         # Add more use cases here as needed
     }
 

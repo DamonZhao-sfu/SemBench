@@ -338,5 +338,9 @@ class GenericRunner(ABC):
             from scenario.cars.cars_scenario import CarsScenario
 
             return CarsScenario(scale_factor=scale_factor)
+        elif use_case == "lro":
+            from scenario.lro.lro_scenario import LROScenario
+
+            return LROScenario(scale_factor=scale_factor)
         else:
             raise ValueError(f"Unknown use case: {use_case}.")
