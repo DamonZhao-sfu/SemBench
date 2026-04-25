@@ -189,8 +189,11 @@ def _read_csv(data_dir: str, relative_path: str) -> pd.DataFrame:
     path = os.path.join(data_dir, relative_path)
     if not os.path.exists(path):
         raise FileNotFoundError(f"LRO source file not found: {path}")
-    # multiLine + escape='"' parity with the Spark reader in lro.py.
-    return pd.read_csv(path, escapechar="\\", engine="python")
+    # multiLine + escape='"' parity with the Spark reader in lro.py:
+    # the CSVs use standard double-quote escaping (""), which pandas handles
+    # via the default doublequote=True. engine="python" allows newlines in
+    # quoted fields. Do NOT set escapechar — it disables the doublequote rule.
+    return pd.read_csv(path, engine="python")
 
 
 def column_descriptor_df(

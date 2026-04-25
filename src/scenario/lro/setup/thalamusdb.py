@@ -82,7 +82,7 @@ class ThalamusDBLROSetup:
         path = os.path.join(data_dir, relative_path)
         if not os.path.exists(path):
             raise FileNotFoundError(f"LRO source file not found: {path}")
-        return pd.read_csv(path, escapechar="\\", engine="python")
+        return pd.read_csv(path, engine="python")
 
     def _load_single_column(
         self, data_dir: str, meta: dict, side: str

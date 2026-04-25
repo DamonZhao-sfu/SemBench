@@ -16,7 +16,6 @@ def run(data_dir: str, scale_factor: int = None):
             data_dir,
             "santos/home_office_senior_officials_travel_data_return.csv",
         ),
-        escapechar="\\",
         engine="python",
     )
     left = (
@@ -29,7 +28,6 @@ def run(data_dir: str, scale_factor: int = None):
 
     travel = pd.read_csv(
         os.path.join(data_dir, "santos/travel-exp-April-June-2018.csv"),
-        escapechar="\\",
         engine="python",
     )
     right = (

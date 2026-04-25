@@ -13,7 +13,6 @@ PROMPT = (
 def run(pz_config, data_dir: str, scale_factor: int = None):
     april = pd.read_csv(
         os.path.join(data_dir, "santos/01.Apr_2018.csv"),
-        escapechar="\\",
         engine="python",
     )
     left = (
@@ -26,7 +25,6 @@ def run(pz_config, data_dir: str, scale_factor: int = None):
 
     may = pd.read_csv(
         os.path.join(data_dir, "santos/2015_05_expenditure.csv"),
-        escapechar="\\",
         engine="python",
     )
     right = (

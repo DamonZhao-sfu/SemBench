@@ -13,7 +13,7 @@ PROMPT = (
 
 
 def _load_side(path: str, side: str) -> pd.DataFrame:
-    df = pd.read_csv(path, escapechar="\\", engine="python")
+    df = pd.read_csv(path, engine="python")
     if "zip" in df.columns:
         df = df[df["zip"] == 60642]
     rename_map = {

@@ -12,7 +12,7 @@ PROMPT = (
 
 
 def _column_descriptor_df(path: str, side: str, n_samples: int = 5) -> pd.DataFrame:
-    df = pd.read_csv(path, escapechar="\\", engine="python")
+    df = pd.read_csv(path, engine="python")
     rows = []
     for col in df.columns:
         sample_vals = df[col].dropna().astype(str).head(n_samples).tolist()
