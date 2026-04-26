@@ -339,6 +339,13 @@ class CarsEvaluator(GenericEvaluator):
         print(f"Systems results sample for Q3: {system_results}")
         print(f"Ground truth sample for Q3: {ground_truth}")
 
+        if id_column not in system_results.columns:
+            print(
+                f"[Q3] system_results is missing column '{id_column}' "
+                f"(columns={list(system_results.columns)}); returning zero metrics."
+            )
+            return QueryMetricRetrieval(precision=0.0, recall=0.0, f1_score=0.0)
+
         correct_ids_ix = ground_truth[id_column].isin(system_results[id_column].to_list())
         correct_ids = ground_truth.loc[correct_ids_ix,:]
         ground_truth_sample = None
