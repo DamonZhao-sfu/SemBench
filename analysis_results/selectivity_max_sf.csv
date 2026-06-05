@@ -1,0 +1,71 @@
+scenario,query,type,scale_factor,base_table,input_rows,result_rows,result_selectivity,selected_rows,predicate_selectivity,selectivity,status,notes
+movie,Q1,filter,2000,Reviews,2000.0,1487.0,0.7435,1487.0,0.7435,0.7435,ok,computed at available sf=2000 (target 16000 not on disk); clearly positive reviews (NL: LIMIT 5)
+movie,Q2,filter,2000,Reviews,2000.0,14.0,0.007,14.0,0.007,0.007,ok,computed at available sf=2000 (target 16000 not on disk); positive reviews for taken_3 (NL: LIMIT 5)
+movie,Q3,aggregation,2000,Reviews,2000.0,1.0,0.0005,14.0,0.007,0.007,ok,computed at available sf=2000 (target 16000 not on disk); COUNT positive reviews for taken_3
+movie,Q4,aggregation,2000,Reviews,2000.0,1.0,0.0005,120.0,0.06,0.06,ok,computed at available sf=2000 (target 16000 not on disk); positivity ratio over taken_3 reviews
+movie,Q5,join,2000,Reviews,2000.0,32288.0,16.144,256.0,0.128,16.144,ok,computed at available sf=2000 (target 16000 not on disk); self-join: same-sentiment pairs (ant_man); result=pairs
+movie,Q6,join,2000,Reviews,2000.0,32736.0,16.368,256.0,0.128,16.368,ok,"computed at available sf=2000 (target 16000 not on disk); self-join: opposite-sentiment pairs (ant_man), NL: LIMIT 10"
+movie,Q7,join,2000,Reviews,2000.0,32736.0,16.368,256.0,0.128,16.368,ok,computed at available sf=2000 (target 16000 not on disk); self-join: all opposite-sentiment pairs (ant_man)
+movie,Q8,aggregation,2000,Reviews,2000.0,2.0,0.001,120.0,0.06,0.06,ok,computed at available sf=2000 (target 16000 not on disk); GROUP BY sentiment for taken_3
+movie,Q9,rank,2000,Reviews,2000.0,256.0,0.128,256.0,0.128,0.128,ok,computed at available sf=2000 (target 16000 not on disk); score each ant_man review (subset of Reviews)
+movie,Q10,rank,2000,Movies,116.0,116.0,1.0,116.0,1.0,1.0,ok,computed at available sf=2000 (target 16000 not on disk); rank every movie (returns all rows)
+ecomm,Q1,filter,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q2,filter,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q3,map,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q4,map,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q5,classification,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q6,classification,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q7,join,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q8,join,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q9,join,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q10,join,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q11,join,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q12,classification,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q13,filter,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+ecomm,Q14,rank,4000,styles_details,,,,,,,data unavailable,python3 src/scenario/ecomm/preparation/generate_data.py --download-from-drive --scale-factor 4000
+cars,Q1,filter,157376,Car (#cars=scale_factor),157376.0,7664.0,0.048698657991053274,7664.0,0.048698657991053274,0.048698657991053274,ok,from committed ground-truth (Q1_157376.csv); cars in a crash/accident (text)
+cars,Q2,filter,157376,Car (#cars=scale_factor),157376.0,9.0,5.7187881252541684e-05,9.0,5.7187881252541684e-05,5.7187881252541684e-05,ok,from committed ground-truth (Q2_157376.csv); electric cars with dead-battery audio
+cars,Q3,filter,157376,Car (#cars=scale_factor),157376.0,5418.0,0.034427104514030096,5418.0,0.034427104514030096,0.034427104514030096,ok,"from committed ground-truth (Q3_157376.csv); manual cars, no damage in images (NL: LIMIT 10)"
+cars,Q4,aggregation,157376,Car (#cars=scale_factor),157376.0,1.0,6.354209028060187e-06,,,,ok,from committed ground-truth (Q4_157376.csv); AVG age of cars with engine problems (text) | predicate selectivity needs labelled source data
+cars,Q5,aggregation,157376,Car (#cars=scale_factor),157376.0,1.0,6.354209028060187e-06,,,,ok,from committed ground-truth (Q5_157376.csv); COUNT automatic cars damaged in audio AND image | predicate selectivity needs labelled source data
+cars,Q6,filter,157376,Car (#cars=scale_factor),157376.0,14774.0,0.0938770841805612,14774.0,0.0938770841805612,0.0938770841805612,ok,from committed ground-truth (Q6_157376.csv); cars damaged in one modality but not another
+cars,Q7,filter,157376,Car (#cars=scale_factor),157376.0,31818.0,0.20217822285481904,31818.0,0.20217822285481904,0.20217822285481904,ok,from committed ground-truth (Q7_157376.csv); dented(img) OR worn brakes(audio) OR electrical(text)
+cars,Q8,filter,157376,Car (#cars=scale_factor),157376.0,1459.0,0.009270790971939813,1459.0,0.009270790971939813,0.009270790971939813,ok,from committed ground-truth (Q8_157376.csv); punctures AND paint scratches in images (NL: LIMIT 100)
+cars,Q9,filter,157376,Car (#cars=scale_factor),157376.0,2.0,1.2708418056120374e-05,2.0,1.2708418056120374e-05,1.2708418056120374e-05,ok,from committed ground-truth (Q9_157376.csv); torn(img) AND bad ignition(audio)
+cars,Q10,classification,157376,Car (#cars=scale_factor),157376.0,157269.0,0.9993200996339976,157269.0,0.9993200996339976,0.9993200996339976,ok,from committed ground-truth (Q10_157376.csv); classify every complaint into a component class
+animals,Q1,aggregation,200,ImageData,200.0,1.0,0.005,11.0,0.055,0.055,ok,computed at available sf=200 (target 1600 not on disk); COUNT zebra images
+animals,Q2,aggregation,200,AudioData,66.0,1.0,0.015151515151515152,5.0,0.07575757575757576,0.07575757575757576,ok,computed at available sf=200 (target 1600 not on disk); COUNT elephant audio
+animals,Q3,rank,200,ImageData,200.0,2.0,0.01,11.0,0.055,0.01,ok,computed at available sf=200 (target 1600 not on disk); city with most zebra images (result=cities)
+animals,Q4,rank,200,AudioData,66.0,2.0,0.030303030303030304,5.0,0.07575757575757576,0.030303030303030304,ok,computed at available sf=200 (target 1600 not on disk); city with most elephant audio (result=cities)
+animals,Q5,set,200,ImageData+AudioData,266.0,3.0,0.011278195488721804,3.0,0.011278195488721804,0.011278195488721804,ok,computed at available sf=200 (target 1600 not on disk); cities with elephant image OR audio (result=cities)
+animals,Q6,set,200,ImageData+AudioData,266.0,3.0,0.011278195488721804,3.0,0.011278195488721804,0.011278195488721804,ok,computed at available sf=200 (target 1600 not on disk); cities with monkey image but NO monkey audio (result=cities)
+animals,Q7,set,200,ImageData,200.0,5.0,0.025,5.0,0.025,0.025,ok,computed at available sf=200 (target 1600 not on disk); cities where zebra AND impala co-occur in images (result=cities)
+animals,Q8,set,200,ImageData+AudioData,266.0,3.0,0.011278195488721804,3.0,0.011278195488721804,0.011278195488721804,ok,computed at available sf=200 (target 1600 not on disk); cities with elephant AND monkey across modalities (result=cities)
+animals,Q9,set,200,ImageData+AudioData,266.0,2.0,0.007518796992481203,2.0,0.007518796992481203,0.007518796992481203,ok,computed at available sf=200 (target 1600 not on disk); cities with monkey image AND monkey audio (result=cities)
+animals,Q10,rank,200,ImageData,200.0,2.0,0.01,11.0,0.055,0.01,ok,computed at available sf=200 (target 1600 not on disk); city+station with most zebra images (result=tuples)
+mmqa,Q1,filter,800,scaled table (rows=scale_factor),800.0,1.0,0.00125,1.0,0.00125,0.00125,ok,base table padded to scale_factor rows; Who is the director of the movie that has Ben Piazza in the 
+mmqa,Q2A,retrieval,800,scaled table (rows=scale_factor),800.0,5.0,0.00625,5.0,0.00625,0.00625,ok,"base table padded to scale_factor rows; Identify the images containing logos, if available, for each"
+mmqa,Q2B,retrieval,800,scaled table (rows=scale_factor),800.0,5.0,0.00625,5.0,0.00625,0.00625,ok,"base table padded to scale_factor rows; Identify the images containing logos, if available, for each"
+mmqa,Q3A,filter,800,scaled table (rows=scale_factor),800.0,13.0,0.01625,13.0,0.01625,0.01625,ok,base table padded to scale_factor rows; Which movies are comedies?
+mmqa,Q3B,filter,800,scaled table (rows=scale_factor),800.0,3.0,0.00375,3.0,0.00375,0.00375,ok,base table padded to scale_factor rows; Which movies are sci-fi?
+mmqa,Q3C,filter,800,scaled table (rows=scale_factor),800.0,4.0,0.005,4.0,0.005,0.005,ok,base table padded to scale_factor rows; Which movies are romances?
+mmqa,Q3D,filter,800,scaled table (rows=scale_factor),800.0,2.0,0.0025,2.0,0.0025,0.0025,ok,base table padded to scale_factor rows; Which movies are horror?
+mmqa,Q3E,filter,800,scaled table (rows=scale_factor),800.0,1.0,0.00125,1.0,0.00125,0.00125,ok,base table padded to scale_factor rows; Which movies are heist movies?
+mmqa,Q3F,filter,800,scaled table (rows=scale_factor),800.0,3.0,0.00375,3.0,0.00375,0.00375,ok,base table padded to scale_factor rows; Which movies are romantic comedies?
+mmqa,Q3G,filter,800,scaled table (rows=scale_factor),800.0,1.0,0.00125,1.0,0.00125,0.00125,ok,base table padded to scale_factor rows; Which movies are biographical comedies?
+mmqa,Q4,classification,800,scaled table (rows=scale_factor),800.0,39.0,0.04875,39.0,0.04875,0.04875,ok,base table padded to scale_factor rows; Categorize the movies in the table by their genre. If a movi
+mmqa,Q5,filter,800,scaled table (rows=scale_factor),800.0,1.0,0.00125,1.0,0.00125,0.00125,ok,base table padded to scale_factor rows; Who has played a role in all the following movies: 'Love Is 
+mmqa,Q6A,filter,800,scaled table (rows=scale_factor),800.0,1.0,0.00125,1.0,0.00125,0.00125,ok,base table padded to scale_factor rows; Which airlines have destinations in Frankfurt?
+mmqa,Q6B,filter,800,scaled table (rows=scale_factor),800.0,1.0,0.00125,1.0,0.00125,0.00125,ok,base table padded to scale_factor rows; Which airlines have destinations in Germany?
+mmqa,Q6C,filter,800,scaled table (rows=scale_factor),800.0,5.0,0.00625,5.0,0.00625,0.00625,ok,base table padded to scale_factor rows; Which airlines have destinations in Europe?
+mmqa,Q7,retrieval,800,scaled table (rows=scale_factor),800.0,5.0,0.00625,5.0,0.00625,0.00625,ok,"base table padded to scale_factor rows; For each airline with destinations in Europe, find its logo "
+medical,Q1,filter,11112,patients,11112.0,50.0,0.004499640028797696,50.0,0.004499640028797696,0.004499640028797696,ok,patients with text_diagnosis=allergy
+medical,Q2,filter,11112,patients,11112.0,22.0,0.0019798416126709864,22.0,0.0019798416126709864,0.0019798416126709864,ok,non-current smokers with normal audio
+medical,Q3,filter,11112,patients,11112.0,1357.0,0.12212023038156948,1357.0,0.12212023038156948,0.12212023038156948,ok,family cancer & abnormal x-ray (NL: LIMIT 5)
+medical,Q4,aggregation,11112,patients,11112.0,1.0,8.999280057595392e-05,50.0,0.004499640028797696,0.004499640028797696,ok,AVG age of acne patients
+medical,Q5,aggregation,11112,patients,11112.0,1.0,8.999280057595392e-05,1.0,8.999280057595392e-05,8.999280057595392e-05,ok,"GROUP BY smoking: current smokers, abnormal audio+xray"
+medical,Q6,filter,11112,patients,11112.0,286.0,0.025737940964722823,286.0,0.025737940964722823,0.025737940964722823,ok,sick in >=1 modality but normal in >=1 (NL: youngest)
+medical,Q7,aggregation,11112,patients,11112.0,7594.0,0.6834053275737941,7594.0,0.6834053275737941,0.6834053275737941,ok,is_sick patients (NL: AVG age); GT = matching rows
+medical,Q8,filter,11112,patients,11112.0,378.0,0.03401727861771058,378.0,0.03401727861771058,0.03401727861771058,ok,family cancer & malignant skin (NL: LIMIT 100)
+medical,Q9,filter,11112,patients,11112.0,469.0,0.04220662347012239,469.0,0.04220662347012239,0.04220662347012239,ok,malignant skin & abnormal x-ray
+medical,Q10,classification,11112,patients,11112.0,1200.0,0.1079913606911447,1200.0,0.1079913606911447,0.1079913606911447,ok,diagnose symptom text for every patient w/ symptoms
