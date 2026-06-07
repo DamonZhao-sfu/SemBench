@@ -12,7 +12,7 @@ def run(data_dir: str, scale_factor: int = 157376):
     # Filter for engine problems
     joined = joined.sem_filter('In the complaint, the car has some problems with engine / connected to engine. Complaint: {summary}.')
 
-    # Calculate average age
-    average_age = 2026 - joined['year'].mean()
-
-    return pd.DataFrame({'average_age': [average_age]})
+    # Return the car_ids of cars with engine problems so the result can be
+    # scored as a set-retrieval task (precision / recall / F1) against the
+    # ground-truth engine-complaint car_ids, instead of as an aggregate.
+    return joined[['car_id']].drop_duplicates()

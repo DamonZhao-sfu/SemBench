@@ -152,4 +152,3 @@ Table B column: name={right_colname} | samples={right_samples}"""
     _run_match_join("match305", left_df, right_df, prompt, gt_path,
                     "left_colname", "right_colname")
 
-
