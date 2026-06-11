@@ -7,11 +7,12 @@ Palimpzest system runner implementation based on generic_runner.
 Modified to support local vLLM deployment.
 """
 
+import inspect
 import re
 import time
 import traceback
 from overrides import override
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import litellm
 import palimpzest as pz
@@ -256,6 +257,7 @@ class GenericPalimpzestRunner(GenericRunner):
         Returns:
             QueryProcessorConfig for Palimpzest
         """
+        embedding_overrides = self._get_embedding_overrides()
 
         # Use configuration data if available, otherwise use defaults
         if self.config_data:
@@ -280,11 +282,13 @@ class GenericPalimpzestRunner(GenericRunner):
                 "allow_rag_reduction": False
             }
 
+            config_kwargs.update(embedding_overrides)
+
             # Only add reasoning_effort if it's not null in the config
             reasoning_effort = self.config_data.get("reasoning_effort")
             if reasoning_effort is not None:
                 config_kwargs["reasoning_effort"] = reasoning_effort
-            
+
             # Add vLLM-specific configuration if present
             if "vllm_config" in self.config_data:
                 vllm_config = self.config_data["vllm_config"]
@@ -293,7 +297,10 @@ class GenericPalimpzestRunner(GenericRunner):
                 if "temperature" in vllm_config:
                     config_kwargs["temperature"] = vllm_config["temperature"]
 
-            return pz.QueryProcessorConfig(**config_kwargs)
+            filtered_kwargs = self._filter_query_processor_kwargs(
+                config_kwargs
+            )
+            return pz.QueryProcessorConfig(**filtered_kwargs)
         else:
             # Use self.model_name to determine the model when config_data is not provided
             selected_model = self._get_model_from_name(self.model_name)
@@ -315,10 +322,67 @@ class GenericPalimpzestRunner(GenericRunner):
                 config_kwargs["reasoning_effort"] = (
                     "minimal"  # Use minimal reasoning effort
                 )
-            
+
+            config_kwargs.update(embedding_overrides)
+
             print(f"Config kwargs: {config_kwargs}")
 
-            return pz.QueryProcessorConfig(**config_kwargs)
+            filtered_kwargs = self._filter_query_processor_kwargs(
+                config_kwargs
+            )
+            return pz.QueryProcessorConfig(**filtered_kwargs)
+
+    def _get_embedding_overrides(self) -> Dict[str, str]:
+        embedding_model = (
+            self.config_data.get("embedding_model")
+            if self.config_data
+            else None
+        )
+        embedding_model = embedding_model or os.getenv(
+            "PALIMPZEST_EMBEDDING_MODEL"
+        )
+        embedding_api_base = (
+            self.config_data.get("embedding_api_base")
+            if self.config_data
+            else None
+        )
+        embedding_api_base = embedding_api_base or os.getenv(
+            "PALIMPZEST_EMBEDDING_API_BASE"
+        )
+        embedding_api_key = (
+            self.config_data.get("embedding_api_key")
+            if self.config_data
+            else None
+        )
+        embedding_api_key = embedding_api_key or os.getenv(
+            "PALIMPZEST_EMBEDDING_API_KEY"
+        )
+
+        overrides = {}
+        if embedding_model:
+            overrides["embedding_model"] = embedding_model
+        if embedding_api_base:
+            overrides["embedding_api_base"] = embedding_api_base
+        if embedding_api_key:
+            overrides["embedding_api_key"] = embedding_api_key
+
+        return overrides
+
+    def _filter_query_processor_kwargs(self, config_kwargs: Dict) -> Dict:
+        signature = inspect.signature(pz.QueryProcessorConfig.__init__)
+        parameters = signature.parameters
+        if any(
+            param.kind == inspect.Parameter.VAR_KEYWORD
+            for param in parameters.values()
+        ):
+            return config_kwargs
+
+        allowed_keys = set(parameters.keys()) - {"self"}
+        return {
+            key: value
+            for key, value in config_kwargs.items()
+            if key in allowed_keys
+        }
 
     def execute_query(self, query_id: int) -> GenericQueryMetric:
         """
