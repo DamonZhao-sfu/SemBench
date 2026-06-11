@@ -1,4 +1,4 @@
-SELECT cars.car_id
+SELECT cars.vin
 FROM cars, car_images
 WHERE cars.car_id = car_images.car_id
 AND cars.transmission = 'Manual'
